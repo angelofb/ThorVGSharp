@@ -1,0 +1,105 @@
+name: Build ThorVG Native Libraries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.rid }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            runner: ubuntu-latest
+            meson-output: libthorvg-1.so
+            target-name: libthorvg.so
+            extra: lottie_exp,openmp
+          - rid: osx-arm64
+            runner: macos-latest
+            meson-output: libthorvg-1.dylib
+            target-name: libthorvg.dylib
+            extra: lottie_exp
+          - rid: win-x64
+            runner: windows-latest
+            meson-output: thorvg-1.dll
+            target-name: thorvg.dll
+            extra: lottie_exp,openmp
+            msvc-arch: amd64
+          - rid: win-x86
+            runner: windows-latest
+            meson-output: thorvg-1.dll
+            target-name: thorvg.dll
+            extra: lottie_exp,openmp
+            msvc-arch: x86
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Meson and Ninja
+        run: pip install meson ninja
+
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc-arch }}
+
+      - name: Configure ThorVG
+        run: >
+          meson setup builddir external/thorvg
+          --default-library=shared
+          --buildtype=release
+          -Dbindings=capi
+          -Dengines=sw
+          -Dloaders=svg,lottie,ttf
+          -Dthreads=true
+          -Dsimd=true
+          -Dextra=${{ matrix.extra }}
+
+      - name: Build ThorVG
+        run: meson compile -C builddir
+
+      - name: Copy library
+        shell: bash
+        run: |
+          mkdir -p runtimes/${{ matrix.rid }}/native
+          cp builddir/src/${{ matrix.meson-output }} runtimes/${{ matrix.rid }}/native/${{ matrix.target-name }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thorvg-${{ matrix.rid }}
+          path: runtimes/${{ matrix.rid }}/native/
+
+  collect:
+    name: Collect native libraries
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Assemble runtimes
+        run: |
+          for rid in linux-x64 osx-arm64 win-x64 win-x86; do
+            mkdir -p runtimes/$rid/native
+            cp artifacts/thorvg-$rid/* runtimes/$rid/native/
+          done
+
+      - name: Upload combined artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thorvg-native-all
+          path: runtimes/
