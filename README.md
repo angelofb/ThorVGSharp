@@ -1,5 +1,7 @@
 # ThorVGSharp
 
+> **Alpha** — This project is in early development, built primarily with AI assistance. The NuGet package has not been published yet.
+
 Low-level .NET bindings and high-level wrapper classes for the [ThorVG](https://github.com/thorvg/thorvg) vector graphics library.
 
 ## Features
