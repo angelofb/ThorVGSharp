@@ -1,0 +1,10 @@
+namespace ThorVGSharp.Interop;
+
+internal enum Tvg_Colorspace
+{
+    TVG_COLORSPACE_ABGR8888 = 0,
+    TVG_COLORSPACE_ARGB8888,
+    TVG_COLORSPACE_ABGR8888S,
+    TVG_COLORSPACE_ARGB8888S,
+    TVG_COLORSPACE_UNKNOWN = 255,
+}

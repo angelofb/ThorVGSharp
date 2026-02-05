@@ -1,0 +1,11 @@
+namespace ThorVGSharp.Interop;
+
+internal enum Tvg_Text_Wrap
+{
+    TVG_TEXT_WRAP_NONE = 0,
+    TVG_TEXT_WRAP_CHARACTER,
+    TVG_TEXT_WRAP_WORD,
+    TVG_TEXT_WRAP_SMART,
+    TVG_TEXT_WRAP_ELLIPSIS,
+    TVG_TEXT_WRAP_HYPHENATION,
+}

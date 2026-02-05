@@ -2,4 +2,7 @@
   <Folder Name="/build/">
     <Project Path="build/Build.csproj" />
   </Folder>
+  <Folder Name="/source/">
+    <Project Path="source/ThorVGSharp/ThorVGSharp.csproj" />
+  </Folder>
 </Solution>
