@@ -55,6 +55,7 @@ jobs:
           arch: ${{ matrix.msvc-arch }}
 
       - name: Configure ThorVG
+        shell: bash
         run: >
           meson setup builddir external/thorvg
           --default-library=shared
