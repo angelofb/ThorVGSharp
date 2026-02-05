@@ -55,17 +55,16 @@ jobs:
           arch: ${{ matrix.msvc-arch }}
 
       - name: Configure ThorVG
-        shell: bash
         run: >
           meson setup builddir external/thorvg
           --default-library=shared
           --buildtype=release
           -Dbindings=capi
           -Dengines=sw
-          -Dloaders=svg,lottie,ttf
+          "-Dloaders=svg,lottie,ttf"
           -Dthreads=true
           -Dsimd=true
-          -Dextra=${{ matrix.extra }}
+          "-Dextra=${{ matrix.extra }}"
 
       - name: Build ThorVG
         run: meson compile -C builddir
