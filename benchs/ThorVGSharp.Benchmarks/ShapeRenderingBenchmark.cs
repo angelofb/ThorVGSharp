@@ -1,6 +1,8 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
+
 using SkiaSharp;
+
 using ThorVGSharp;
 
 namespace ThorVGSharp.Benchmarks;
@@ -34,7 +36,7 @@ public class ShapeRenderingBenchmark
         TvgEngine.Terminate();
     }
 
-    [Benchmark(Description = "ThorVG - Simple Rectangle")]
+    [Benchmark(Description = "Rectangle - ThorVGSharp")]
     public void ThorVG_SimpleRectangle()
     {
         using var canvas = TvgCanvasSoftware.Create();
@@ -49,7 +51,7 @@ public class ShapeRenderingBenchmark
         canvas.Sync();
     }
 
-    [Benchmark(Description = "SkiaSharp - Simple Rectangle")]
+    [Benchmark(Description = "Rectangle - SkiaSharp")]
     public void SkiaSharp_SimpleRectangle()
     {
         using var surface = SKSurface.Create(_skiaBitmap!.Info, _skiaBitmap.GetPixels(), _skiaBitmap.RowBytes);
@@ -68,7 +70,7 @@ public class ShapeRenderingBenchmark
         surface.Flush();
     }
 
-    [Benchmark(Description = "ThorVG - Circle")]
+    [Benchmark(Description = "Circle- ThorVGSharp")]
     public void ThorVG_Circle()
     {
         using var canvas = TvgCanvasSoftware.Create();
@@ -83,7 +85,7 @@ public class ShapeRenderingBenchmark
         canvas.Sync();
     }
 
-    [Benchmark(Description = "SkiaSharp - Circle")]
+    [Benchmark(Description = "Circle - SkiaSharp")]
     public void SkiaSharp_Circle()
     {
         using var surface = SKSurface.Create(_skiaBitmap!.Info, _skiaBitmap.GetPixels(), _skiaBitmap.RowBytes);
@@ -102,7 +104,7 @@ public class ShapeRenderingBenchmark
         surface.Flush();
     }
 
-    [Benchmark(Description = "ThorVG - Complex Path")]
+    [Benchmark(Description = "Complex Path - ThorVGSharp")]
     public void ThorVG_ComplexPath()
     {
         using var canvas = TvgCanvasSoftware.Create();
@@ -122,7 +124,7 @@ public class ShapeRenderingBenchmark
         canvas.Sync();
     }
 
-    [Benchmark(Description = "SkiaSharp - Complex Path")]
+    [Benchmark(Description = "Complex Path - SkiaSharp")]
     public void SkiaSharp_ComplexPath()
     {
         using var surface = SKSurface.Create(_skiaBitmap!.Info, _skiaBitmap.GetPixels(), _skiaBitmap.RowBytes);

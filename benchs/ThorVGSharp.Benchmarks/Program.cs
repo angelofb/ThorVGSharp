@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
+
 using ThorVGSharp.Benchmarks;
 
 // Run all benchmarks or specific ones based on command line arguments
@@ -12,4 +13,5 @@ else
     // Run all benchmarks by default
     BenchmarkRunner.Run<ShapeRenderingBenchmark>();
     BenchmarkRunner.Run<ComplexSceneBenchmark>();
+    BenchmarkRunner.Run<GradientsBenchmark>();
 }

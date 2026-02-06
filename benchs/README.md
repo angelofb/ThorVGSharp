@@ -24,7 +24,9 @@ Tests basic shape rendering performance with simple primitives:
 
 #### 2. Complex Scene Rendering (`ComplexSceneBenchmark`)
 Tests performance with multiple objects and effects:
-- **100 Shapes**: Rendering 100 rectangles with rounded corners (1920x1080 canvas)
+- **Multiple Shapes**: Rendering rectangles with rounded corners (1920x1080 canvas)
+  - **Parameterized**: Tests with 50, 500, and 5000 shapes
+  - Demonstrates scalability across different scene complexities
 - **Gradients**: 20 shapes with linear gradients (1920x1080 canvas)
 
 ### Rendering Configuration
@@ -68,6 +70,15 @@ dotnet run -c Release --filter "*ShapeRendering*"
 ```bash
 dotnet run -c Release -- --filter "*Circle*" --memory
 ```
+
+## Parameterized Benchmarks
+
+The `ComplexSceneBenchmark.ShapeCount` parameter tests performance across different scales:
+- **50 shapes**: Quick rendering, tests overhead
+- **500 shapes**: Medium complexity, typical UI scenarios
+- **5000 shapes**: High complexity, stress testing
+
+BenchmarkDotNet will run each benchmark method for all parameter combinations, allowing you to see how performance scales with scene complexity.
 
 ## Benchmark Output
 
