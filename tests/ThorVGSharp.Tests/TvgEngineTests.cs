@@ -1,6 +1,7 @@
 // Tests adapted from external/thorvg/test/testInitializer.cpp
 namespace ThorVGSharp.Tests;
 
+[Collection("TvgEngine")]
 public class TvgEngineTests : IDisposable
 {
     public TvgEngineTests()

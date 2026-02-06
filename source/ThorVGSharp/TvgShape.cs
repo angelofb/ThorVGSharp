@@ -73,8 +73,8 @@ public class TvgShape : TvgPaint
     /// <summary>
     /// Appends a custom path defined by commands and points.
     /// </summary>
-    /// <param name="commands">Array of path commands</param>
-    /// <param name="points">Array of points corresponding to the commands</param>
+    /// <param name="commands">Span of path commands</param>
+    /// <param name="points">Span of points corresponding to the commands</param>
     /// <remarks>
     /// This allows appending complex paths defined programmatically or loaded from external sources.
     /// Each command requires a specific number of points:
@@ -84,22 +84,24 @@ public class TvgShape : TvgPaint
     /// - Close: 0 points
     /// </remarks>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void AppendPath(TvgPathCommand[] commands, (float x, float y)[] points)
+    public unsafe void AppendPath(ReadOnlySpan<TvgPathCommand> commands, ReadOnlySpan<(float x, float y)> points)
     {
-        if (commands == null)
-            throw new ArgumentNullException(nameof(commands));
-        if (points == null)
-            throw new ArgumentNullException(nameof(points));
-        if (commands.Length == 0)
-            throw new ArgumentException("Commands array cannot be empty", nameof(commands));
+        if (commands.IsEmpty)
+            throw new ArgumentException("Commands span cannot be empty", nameof(commands));
 
-        // Convert commands to byte array
-        var cmdBytes = new byte[commands.Length];
+        // Convert commands to byte array or stackalloc for small sizes
+        Span<byte> cmdBytes = commands.Length <= 256
+            ? stackalloc byte[commands.Length]
+            : new byte[commands.Length];
+
         for (int i = 0; i < commands.Length; i++)
             cmdBytes[i] = (byte)commands[i];
 
         // Convert points to native format
-        var nativePoints = stackalloc Tvg_Point[points.Length];
+        Span<Tvg_Point> nativePoints = points.Length <= 256
+            ? stackalloc Tvg_Point[points.Length]
+            : new Tvg_Point[points.Length];
+
         for (int i = 0; i < points.Length; i++)
         {
             nativePoints[i].x = points[i].x;
@@ -107,8 +109,9 @@ public class TvgShape : TvgPaint
         }
 
         fixed (byte* cmdsPtr = cmdBytes)
+        fixed (Tvg_Point* pointsPtr = nativePoints)
         {
-            var result = NativeMethods.tvg_shape_append_path(Handle, cmdsPtr, (uint)cmdBytes.Length, nativePoints, (uint)points.Length);
+            var result = NativeMethods.tvg_shape_append_path(Handle, cmdsPtr, (uint)commands.Length, pointsPtr, (uint)points.Length);
             TvgResultHelper.CheckResult(result, "shape append path");
         }
     }
@@ -379,10 +382,12 @@ public class TvgShape : TvgPaint
     /// <summary>
     /// Sets the stroke dash pattern.
     /// </summary>
+    /// <param name="dashPattern">Span of dash pattern values. Pass an empty span to clear the dash pattern.</param>
+    /// <param name="offset">Offset for the dash pattern</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void SetStrokeDash(float[]? dashPattern, uint count = 0, float offset = 0)
+    public unsafe void SetStrokeDash(ReadOnlySpan<float> dashPattern, float offset = 0)
     {
-        if (dashPattern == null || dashPattern.Length == 0)
+        if (dashPattern.IsEmpty)
         {
             var result = NativeMethods.tvg_shape_set_stroke_dash(Handle, null, 0, 0);
             TvgResultHelper.CheckResult(result, "shape set stroke dash");
@@ -391,8 +396,7 @@ public class TvgShape : TvgPaint
 
         fixed (float* dashPtr = dashPattern)
         {
-            uint actualCount = count > 0 ? count : (uint)dashPattern.Length;
-            var result = NativeMethods.tvg_shape_set_stroke_dash(Handle, dashPtr, actualCount, offset);
+            var result = NativeMethods.tvg_shape_set_stroke_dash(Handle, dashPtr, (uint)dashPattern.Length, offset);
             TvgResultHelper.CheckResult(result, "shape set stroke dash");
         }
     }

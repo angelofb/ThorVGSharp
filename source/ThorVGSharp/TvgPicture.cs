@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+
 using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
@@ -54,13 +55,13 @@ public class TvgPicture : TvgPaint
     /// <summary>
     /// Loads a raw pixel buffer.
     /// </summary>
-    /// <param name="data">Pixel data buffer</param>
+    /// <param name="data">Pixel data buffer span</param>
     /// <param name="width">Image width</param>
     /// <param name="height">Image height</param>
     /// <param name="colorSpace">Color space format</param>
     /// <param name="copy">Whether to copy the data (true) or reference it (false)</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void LoadRaw(uint[] data, uint width, uint height, TvgColorSpace colorSpace, bool copy = true)
+    public unsafe void LoadRaw(ReadOnlySpan<uint> data, uint width, uint height, TvgColorSpace colorSpace, bool copy = true)
     {
         fixed (uint* dataPtr = data)
         {
@@ -72,12 +73,12 @@ public class TvgPicture : TvgPaint
     /// <summary>
     /// Loads image data from memory.
     /// </summary>
-    /// <param name="data">Image data bytes</param>
+    /// <param name="data">Image data bytes span</param>
     /// <param name="mimeType">MIME type of the image (e.g., "image/png", "image/svg+xml")</param>
     /// <param name="resourcePath">Optional resource path for relative references</param>
     /// <param name="copy">Whether to copy the data</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void LoadData(byte[] data, string? mimeType = null, string? resourcePath = null, bool copy = true)
+    public unsafe void LoadData(ReadOnlySpan<byte> data, string? mimeType = null, string? resourcePath = null, bool copy = true)
     {
         fixed (byte* dataPtr = data)
         {

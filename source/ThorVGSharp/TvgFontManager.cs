@@ -26,17 +26,17 @@ public static class TvgFontManager
     /// Loads a font from memory data.
     /// </summary>
     /// <param name="name">Font name identifier</param>
-    /// <param name="data">Font file data</param>
+    /// <param name="data">Font file data span</param>
     /// <param name="mimeType">MIME type of the font (e.g., "font/ttf", "font/otf")</param>
     /// <param name="copy">Whether to copy the data</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public static unsafe void LoadData(string name, byte[] data, string? mimeType = null, bool copy = true)
+    public static unsafe void LoadData(string name, ReadOnlySpan<byte> data, string? mimeType = null, bool copy = true)
     {
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException("Font name cannot be null or empty.", nameof(name));
 
-        if (data == null || data.Length == 0)
-            throw new ArgumentException("Font data cannot be null or empty.", nameof(data));
+        if (data.IsEmpty)
+            throw new ArgumentException("Font data cannot be empty.", nameof(data));
 
         byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(name + '\0');
         byte[]? mimeBytes = mimeType != null ? System.Text.Encoding.UTF8.GetBytes(mimeType + '\0') : null;

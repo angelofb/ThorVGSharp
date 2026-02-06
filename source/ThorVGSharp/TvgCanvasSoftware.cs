@@ -22,13 +22,13 @@ public class TvgCanvasSoftware : TvgCanvas
     /// <summary>
     /// Sets the target pixel buffer for rendering.
     /// </summary>
-    /// <param name="buffer">Pixel buffer (RGBA format depending on colorspace)</param>
+    /// <param name="buffer">Pixel buffer span (RGBA format depending on colorspace)</param>
     /// <param name="stride">Stride (width in pixels) of each row</param>
     /// <param name="width">Width of the buffer</param>
     /// <param name="height">Height of the buffer</param>
     /// <param name="colorspace">Color space format</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void SetTarget(uint[] buffer, uint stride, uint width, uint height, TvgColorSpace colorspace)
+    public unsafe void SetTarget(ReadOnlySpan<uint> buffer, uint stride, uint width, uint height, TvgColorSpace colorspace)
     {
         fixed (uint* bufferPtr = buffer)
         {
