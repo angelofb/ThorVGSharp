@@ -168,8 +168,8 @@ public abstract class TvgPaint : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetMaskMethod(TvgPaint target, TvgMaskMethod method)
     {
-        if (target == null)
-            throw new ArgumentNullException(nameof(target));
+        ArgumentNullException.ThrowIfNull(target);
+
         var result = NativeMethods.tvg_paint_set_mask_method(Handle, target.Handle, (Tvg_Mask_Method)method);
         TvgResultHelper.CheckResult(result, "paint set mask method");
     }
@@ -179,8 +179,8 @@ public abstract class TvgPaint : IDisposable
     /// </summary>
     public unsafe TvgMaskMethod GetMaskMethod(TvgPaint target)
     {
-        if (target == null)
-            throw new ArgumentNullException(nameof(target));
+        ArgumentNullException.ThrowIfNull(target);
+
         Tvg_Mask_Method method;
         NativeMethods.tvg_paint_get_mask_method(Handle, target.Handle, &method);
         return (TvgMaskMethod)method;
@@ -259,8 +259,7 @@ public abstract class TvgPaint : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetClip(TvgPaint clipper)
     {
-        if (clipper == null)
-            throw new ArgumentNullException(nameof(clipper));
+        ArgumentNullException.ThrowIfNull(clipper);
 
         var result = NativeMethods.tvg_paint_set_clip(Handle, clipper.Handle);
         TvgResultHelper.CheckResult(result, "paint set clip");

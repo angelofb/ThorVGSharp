@@ -37,8 +37,7 @@ public class TvgSaver : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Save(TvgPaint paint, string path, uint quality = 100)
     {
-        if (paint == null)
-            throw new ArgumentNullException(nameof(paint));
+        ArgumentNullException.ThrowIfNull(paint);
 
         byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
         fixed (byte* pathPtr = pathBytes)
@@ -58,8 +57,7 @@ public class TvgSaver : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Save(TvgAnimation animation, string path, uint quality = 100, uint fps = 60)
     {
-        if (animation == null)
-            throw new ArgumentNullException(nameof(animation));
+        ArgumentNullException.ThrowIfNull(animation);
 
         byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
         fixed (byte* pathPtr = pathBytes)

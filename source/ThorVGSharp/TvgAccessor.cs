@@ -47,8 +47,7 @@ public class TvgAccessor : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Set(TvgPaint paint, PaintVisitor visitor, IntPtr userData = default)
     {
-        if (paint == null)
-            throw new ArgumentNullException(nameof(paint));
+        ArgumentNullException.ThrowIfNull(paint);
 
         // Create a native callback wrapper
         delegate* unmanaged[Cdecl]<_Tvg_Paint*, void*, byte> nativeCallback = &NativeVisitorCallback;

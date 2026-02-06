@@ -29,8 +29,7 @@ public class TvgScene : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Add(TvgPaint paint)
     {
-        if (paint == null)
-            throw new ArgumentNullException(nameof(paint));
+        ArgumentNullException.ThrowIfNull(paint);
 
         // Increment reference count to retain C# ownership while scene also owns it
         NativeMethods.tvg_paint_ref(paint.Handle);
@@ -45,8 +44,7 @@ public class TvgScene : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Remove(TvgPaint paint)
     {
-        if (paint == null)
-            throw new ArgumentNullException(nameof(paint));
+        ArgumentNullException.ThrowIfNull(paint);
 
         var result = NativeMethods.tvg_scene_remove(Handle, paint.Handle);
         TvgResultHelper.CheckResult(result, "scene remove paint");
@@ -65,8 +63,7 @@ public class TvgScene : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Insert(TvgPaint target, TvgPaint? at = null)
     {
-        if (target == null)
-            throw new ArgumentNullException(nameof(target));
+        ArgumentNullException.ThrowIfNull(target);
 
         // Increment reference count to retain C# ownership while scene also owns it
         NativeMethods.tvg_paint_ref(target.Handle);
