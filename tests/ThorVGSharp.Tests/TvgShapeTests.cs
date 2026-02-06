@@ -76,11 +76,7 @@ public class TvgShapeTests : IDisposable
         using var shape = TvgShape.Create();
         Assert.NotNull(shape);
 
-        // Negative cases
-        Assert.Throws<ArgumentNullException>(() =>
-            shape.AppendPath(null!, Array.Empty<(float, float)>()));
-        Assert.Throws<ArgumentNullException>(() =>
-            shape.AppendPath(Array.Empty<TvgPathCommand>(), null!));
+        // Negative cases - empty spans should throw ArgumentException
         Assert.Throws<ArgumentException>(() =>
             shape.AppendPath(Array.Empty<TvgPathCommand>(), Array.Empty<(float, float)>()));
 
