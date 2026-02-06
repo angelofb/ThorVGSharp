@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!-- Determine the runtime identifier if not already set -->
+    <ThorVGRuntimeIdentifier Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</ThorVGRuntimeIdentifier>
+    <ThorVGRuntimeIdentifier Condition="'$(ThorVGRuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform(Windows))' == 'true' AND '$(PlatformTarget)' == 'x86'">win-x86</ThorVGRuntimeIdentifier>
+    <ThorVGRuntimeIdentifier Condition="'$(ThorVGRuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform(Windows))' == 'true' AND '$(PlatformTarget)' != 'x86'">win-x64</ThorVGRuntimeIdentifier>
+    <ThorVGRuntimeIdentifier Condition="'$(ThorVGRuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform(Linux))' == 'true'">linux-x64</ThorVGRuntimeIdentifier>
+    <ThorVGRuntimeIdentifier Condition="'$(ThorVGRuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform(OSX))' == 'true' AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">osx-arm64</ThorVGRuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(ThorVGRuntimeIdentifier)' != ''">
+    <!-- Copy native libraries from the runtimes folder to the output directory -->
+    <ThorVGNativeLibrary Include="$(MSBuildThisFileDirectory)..\..\runtimes\$(ThorVGRuntimeIdentifier)\native\*.*" />
+    <None Include="@(ThorVGNativeLibrary)">
+      <Link>%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </None>
+  </ItemGroup>
+
+  <Target Name="ThorVGCopyNativeLibraries" BeforeTargets="Build">
+    <Message Importance="high" Text="ThorVG: Using runtime identifier '$(ThorVGRuntimeIdentifier)'" Condition="'$(ThorVGRuntimeIdentifier)' != ''" />
+    <Warning Text="ThorVG: Could not determine runtime identifier. Native libraries may not be copied." Condition="'$(ThorVGRuntimeIdentifier)' == ''" />
+  </Target>
+</Project>

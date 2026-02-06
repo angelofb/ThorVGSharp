@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
-    <metadata>
-        <id>ThorVGSharp</id>
-        <version>$version$</version>
-        <authors>ThorVGSharp Contributors</authors>
-        <description>Low-level .NET bindings and high-level wrapper classes for ThorVG vector graphics library</description>
-        <license type="expression">MIT</license>
-        <readme>README.md</readme>
-        <projectUrl>https://github.com/angelofb/ThorVGSharp</projectUrl>
-        <repository type="git" url="https://github.com/angelofb/ThorVGSharp" />
-        <tags>thorvg vector-graphics graphics rendering svg</tags>
-        <dependencies>
-            <group targetFramework="net10.0" />
-        </dependencies>
-    </metadata>
-    <files>
-        <file src="bin\Release\net10.0\ThorVGSharp.dll" target="lib\net10.0" />
-        <file src="..\..\runtimes\**\native\*.*" target="runtimes" />
-        <file src="..\..\README.md" target="" />
-    </files>
+  <metadata>
+    <id>ThorVGSharp</id>
+   <version>0.0.1</version>
+    <authors>ThorVGSharp Contributors</authors>
+    <description>Low-level .NET bindings and high-level wrapper classes for ThorVG vector graphics library</description>
+    <license type="expression">MIT</license>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/angelofb/ThorVGSharp</projectUrl>
+    <repository type="git" url="https://github.com/angelofb/ThorVGSharp" />
+    <tags>thorvg vector-graphics graphics rendering svg</tags>
+    <dependencies>
+      <group targetFramework="net10.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- Assembly -->
+    <file src="bin\Release\net10.0\ThorVGSharp.dll" target="lib\net10.0" />
+
+    <!-- Native libraries -->
+    <file src="..\..\runtimes\**\*.*" target="runtimes" />
+
+    <!-- Targets file (auto-imported by NuGet) -->
+    <file src="ThorVGSharp.targets" target="build\net10.0" />
+    <file src="ThorVGSharp.targets" target="buildTransitive\net10.0" />
+
+    <!-- README -->
+    <file src="..\..\README.md" target="" />
+  </files>
 </package>
