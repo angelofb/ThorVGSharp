@@ -62,7 +62,7 @@ jobs:
           -Dengines="sw,gl"
           -Dbindings=capi
           -Dloaders="svg,lottie,ttf,png,jpg,webp"
-          -DSavers=
+          -Dsavers=
           -Dthreads=true
           -Dsimd=true
           -Dpartial=false
