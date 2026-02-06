@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/benchs/">
+    <Project Path="benchs/ThorVGSharp.Benchmarks/ThorVGSharp.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/build/">
     <Project Path="build/Build.csproj" />
   </Folder>

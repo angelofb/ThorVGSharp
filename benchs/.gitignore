@@ -1,0 +1,10 @@
+# BenchmarkDotNet artifacts
+BenchmarkDotNet.Artifacts/
+*.md
+!README.md
+
+# Benchmark results
+results/
+*.csv
+*.html
+*.log
