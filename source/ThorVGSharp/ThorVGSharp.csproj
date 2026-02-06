@@ -14,5 +14,4 @@
     <InternalsVisibleTo Include="ThorVGSharp.Tests" />
   </ItemGroup>
 
-
 </Project>

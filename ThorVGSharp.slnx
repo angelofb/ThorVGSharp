@@ -2,7 +2,14 @@
   <Folder Name="/build/">
     <Project Path="build/Build.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/ThorVGSharp.Sample.Common/ThorVGSharp.Sample.Common.csproj" />
+    <Project Path="samples/ThorVGSharp.Sample.Wpf/ThorVGSharp.Sample.Wpf.csproj" />
+  </Folder>
   <Folder Name="/source/">
     <Project Path="source/ThorVGSharp/ThorVGSharp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ThorVGSharp.Tests/ThorVGSharp.Tests.csproj" />
   </Folder>
 </Solution>
