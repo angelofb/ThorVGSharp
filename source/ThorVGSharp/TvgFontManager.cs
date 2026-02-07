@@ -48,7 +48,7 @@ public static class TvgFontManager
 
         Span<byte> mimeBuffer = mimeType != null
             ? (mimeMaxBytes <= 256 ? stackalloc byte[mimeMaxBytes] : new byte[mimeMaxBytes])
-            : Span<byte>.Empty;
+            : [];
         if (mimeType != null) StringHelper.EncodeToUtf8(mimeType, mimeBuffer);
 
         fixed (byte* namePtr = nameBuffer)

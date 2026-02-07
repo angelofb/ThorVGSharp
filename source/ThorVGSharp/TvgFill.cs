@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
@@ -57,12 +56,10 @@ public abstract class TvgFill : IDisposable
         if (stops.IsEmpty)
             throw new ArgumentException("Color stops cannot be empty.", nameof(stops));
 
-        // TvgColorStop and Tvg_Color_Stop have identical layout, use zero-copy cast
-        ReadOnlySpan<Tvg_Color_Stop> nativeStops = MemoryMarshal.Cast<TvgColorStop, Tvg_Color_Stop>(stops);
 
-        fixed (Tvg_Color_Stop* nativeStopsPtr = nativeStops)
+        fixed (TvgColorStop* stopsPtr = stops)
         {
-            var result = NativeMethods.tvg_gradient_set_color_stops(Handle, nativeStopsPtr, (uint)nativeStops.Length);
+            var result = NativeMethods.tvg_gradient_set_color_stops(Handle, stopsPtr, (uint)stops.Length);
             TvgResultHelper.CheckResult(result, "gradient set color stops");
         }
     }
@@ -72,7 +69,7 @@ public abstract class TvgFill : IDisposable
     /// </summary>
     public unsafe TvgColorStop[] GetColorStops()
     {
-        Tvg_Color_Stop* stopsPtr;
+        TvgColorStop* stopsPtr;
         uint count;
         var result = NativeMethods.tvg_gradient_get_color_stops(Handle, &stopsPtr, &count);
 
@@ -81,7 +78,7 @@ public abstract class TvgFill : IDisposable
 
         TvgColorStop[] stops = new TvgColorStop[count];
         for (int i = 0; i < count; i++)
-            stops[i] = TvgColorStop.Map(stopsPtr[i]);
+            stops[i] = stopsPtr[i];
 
         return stops;
     }
@@ -116,8 +113,7 @@ public abstract class TvgFill : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetTransform(TvgMatrix matrix)
     {
-        var nativeMatrix = TvgMatrix.Map(matrix);
-        var result = NativeMethods.tvg_gradient_set_transform(Handle, &nativeMatrix);
+        var result = NativeMethods.tvg_gradient_set_transform(Handle, &matrix);
         TvgResultHelper.CheckResult(result, "gradient set transform");
     }
 
@@ -126,9 +122,9 @@ public abstract class TvgFill : IDisposable
     /// </summary>
     public unsafe TvgMatrix GetTransform()
     {
-        Tvg_Matrix nativeMatrix;
-        NativeMethods.tvg_gradient_get_transform(Handle, &nativeMatrix);
-        return TvgMatrix.Map(nativeMatrix);
+        TvgMatrix matrix;
+        NativeMethods.tvg_gradient_get_transform(Handle, &matrix);
+        return matrix;
     }
 
     /// <summary>

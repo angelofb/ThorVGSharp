@@ -84,7 +84,7 @@ public sealed class TvgShape : TvgPaint
     /// - Close: 0 points
     /// </remarks>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void AppendPath(ReadOnlySpan<TvgPathCommand> commands, ReadOnlySpan<(float x, float y)> points)
+    public unsafe void AppendPath(ReadOnlySpan<TvgPathCommand> commands, ReadOnlySpan<TvgPoint> points)
     {
         if (commands.IsEmpty)
             throw new ArgumentException("Commands span cannot be empty", nameof(commands));
@@ -97,19 +97,8 @@ public sealed class TvgShape : TvgPaint
         for (int i = 0; i < commands.Length; i++)
             cmdBytes[i] = (byte)commands[i];
 
-        // Convert points to native format
-        Span<Tvg_Point> nativePoints = points.Length <= 256
-            ? stackalloc Tvg_Point[points.Length]
-            : new Tvg_Point[points.Length];
-
-        for (int i = 0; i < points.Length; i++)
-        {
-            nativePoints[i].x = points[i].x;
-            nativePoints[i].y = points[i].y;
-        }
-
         fixed (byte* cmdsPtr = cmdBytes)
-        fixed (Tvg_Point* pointsPtr = nativePoints)
+        fixed (TvgPoint* pointsPtr = points)
         {
             var result = NativeMethods.tvg_shape_append_path(Handle, cmdsPtr, (uint)commands.Length, pointsPtr, (uint)points.Length);
             TvgResultHelper.CheckResult(result, "shape append path");
@@ -452,24 +441,24 @@ public sealed class TvgShape : TvgPaint
     /// Gets the path commands and points that define this shape.
     /// </summary>
     /// <returns>Tuple containing (commands array, points array)</returns>
-    public unsafe (TvgPathCommand[] commands, (float x, float y)[] points) GetPath()
+    public unsafe (TvgPathCommand[] commands, TvgPoint[] points) GetPath()
     {
         byte* commandsPtr;
         uint commandCount;
-        Tvg_Point* pointsPtr;
+        TvgPoint* pointsPtr;
         uint pointCount;
 
         var result = NativeMethods.tvg_shape_get_path(Handle, &commandsPtr, &commandCount, &pointsPtr, &pointCount);
         if (result != Tvg_Result.TVG_RESULT_SUCCESS)
-            return (Array.Empty<TvgPathCommand>(), Array.Empty<(float, float)>());
+            return (Array.Empty<TvgPathCommand>(), Array.Empty<TvgPoint>());
 
         var commands = new TvgPathCommand[commandCount];
         for (int i = 0; i < commandCount; i++)
             commands[i] = (TvgPathCommand)commandsPtr[i];
 
-        var points = new (float x, float y)[pointCount];
+        var points = new TvgPoint[pointCount];
         for (int i = 0; i < pointCount; i++)
-            points[i] = (pointsPtr[i].x, pointsPtr[i].y);
+            points[i] = pointsPtr[i];
 
         return (commands, points);
     }

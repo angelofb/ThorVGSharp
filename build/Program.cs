@@ -34,8 +34,10 @@ public class BuildContext : FrostingContext
     public DirectoryPath SourceDirectory { get; }
     public DirectoryPath ExternalDirectory { get; }
     public DirectoryPath ThorVGDirectory => ExternalDirectory.Combine("thorvg");
-    public DirectoryPath BindingsDirectory => SourceDirectory.Combine("ThorVGSharp").Combine("Interop");
-
+    public FilePath BindingsDirectory => SourceDirectory
+                    .Combine("ThorVGSharp")
+                    .Combine("Internal")
+                    .CombineWithFilePath("NativeBindings.g.cs");
 }
 
 [TaskName("bindings")]
@@ -55,9 +57,6 @@ public sealed class GenerateBindingsTask : FrostingTask<BuildContext>
             throw new FileNotFoundException("thorvg_capi.h not found", headerPath.FullPath);
         }
 
-        context.EnsureDirectoryExists(context.BindingsDirectory);
-        context.CleanDirectory(context.BindingsDirectory);
-
         // Build the ClangSharp command line arguments
         List<string> clangSharpArgs =
         [
@@ -67,16 +66,21 @@ public sealed class GenerateBindingsTask : FrostingTask<BuildContext>
             "--libraryPath", "thorvg",
             "--methodClassName", "NativeMethods",
             "--with-access-specifier", "*=Internal",
+            "--with-using", "*=ThorVGSharp.Internal.Attributes",
             "--config", "latest-codegen",
-            "--config", "multi-file",
+            "--config", "single-file",
             "--config", "generate-native-bitfield-attribute",
             "--config", "generate-macro-bindings",
             "--config", "generate-aggressive-inlining",
-            "--config", "generate-file-scoped-namespaces",
-            "--config", "generate-helper-types",
             "--config", "generate-unmanaged-constants",
             "--exclude", "TVG_API",
             "--exclude", "TVG_DEPRECATED",
+            "--remap", "Tvg_Point=TvgPoint",
+            "--remap", "Tvg_Matrix=TvgMatrix",
+            "--remap", "Tvg_Color_Stop=TvgColorStop",
+            "--exclude", "Tvg_Point",
+            "--exclude", "Tvg_Matrix",
+            "--exclude", "Tvg_Color_Stop",
         ];
 
         context.Information("Running ClangSharpPInvokeGenerator...");

@@ -78,7 +78,7 @@ public class TvgShapeTests : IDisposable
 
         // Negative cases - empty spans should throw ArgumentException
         Assert.Throws<ArgumentException>(() =>
-            shape.AppendPath(Array.Empty<TvgPathCommand>(), Array.Empty<(float, float)>()));
+            shape.AppendPath(Array.Empty<TvgPathCommand>(), Array.Empty<TvgPoint>()));
 
         var cmds = new[]
         {
@@ -89,13 +89,13 @@ public class TvgShapeTests : IDisposable
             TvgPathCommand.Close
         };
 
-        var pts = new[]
+        var pts = new TvgPoint[]
         {
-            (100f, 100f),
-            (200f, 200f),
-            (10f, 10f),
-            (20f, 20f),
-            (30f, 30f)
+            new(100f, 100f),
+            new(200f, 200f),
+            new(10f, 10f),
+            new(20f, 20f),
+            new(30f, 30f)
         };
 
         shape.AppendPath(cmds, pts);
@@ -107,8 +107,8 @@ public class TvgShapeTests : IDisposable
         for (int i = 0; i < 5; i++)
         {
             Assert.Equal(cmds[i], commands[i]);
-            Assert.Equal(pts[i].Item1, points[i].x);
-            Assert.Equal(pts[i].Item2, points[i].y);
+            Assert.Equal(pts[i].X, points[i].X);
+            Assert.Equal(pts[i].Y, points[i].Y);
         }
 
         shape.Reset();

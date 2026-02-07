@@ -87,10 +87,10 @@ public sealed class TvgPicture : TvgPaint
 
         Span<byte> mimeBuffer = mimeType != null
             ? (mimeMaxBytes <= 256 ? stackalloc byte[mimeMaxBytes] : new byte[mimeMaxBytes])
-            : Span<byte>.Empty;
+            : [];
         Span<byte> rpathBuffer = resourcePath != null
             ? (rpathMaxBytes <= 256 ? stackalloc byte[rpathMaxBytes] : new byte[rpathMaxBytes])
-            : Span<byte>.Empty;
+            : [];
 
         if (mimeType != null) StringHelper.EncodeToUtf8(mimeType, mimeBuffer);
         if (resourcePath != null) StringHelper.EncodeToUtf8(resourcePath, rpathBuffer);

@@ -1,7 +1,4 @@
-
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
 
@@ -29,27 +26,5 @@ public readonly partial struct TvgMatrix
         E31 = e31;
         E32 = e32;
         E33 = e33;
-    }
-
-    /// <summary>
-    /// Maps a managed TvgMatrix to a native Tvg_Matrix.
-    /// Uses zero-copy pointer casting for optimal performance.
-    /// </summary>
-    /// <param name="matrix">The managed matrix to map.</param>
-    /// <returns>The mapped native matrix.</returns>
-    internal static Tvg_Matrix Map(TvgMatrix matrix)
-    {
-        return Unsafe.As<TvgMatrix, Tvg_Matrix>(ref matrix);
-    }
-
-    /// <summary>
-    /// Maps a native Tvg_Matrix to a managed TvgMatrix.
-    /// Uses zero-copy pointer casting for optimal performance.
-    /// </summary>
-    /// <param name="nativeMatrix">The native matrix to map.</param>
-    /// <returns>The mapped managed matrix.</returns>
-    internal static TvgMatrix Map(Tvg_Matrix nativeMatrix)
-    {
-        return Unsafe.As<Tvg_Matrix, TvgMatrix>(ref nativeMatrix);
     }
 }

@@ -1,7 +1,6 @@
-using System;
 using System.Diagnostics;
 
-namespace ThorVGSharp.Interop;
+namespace ThorVGSharp.Internal.Attributes;
 
 /// <summary>Defines the layout of a bitfield as it was used in the native signature.</summary>
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]

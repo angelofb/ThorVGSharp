@@ -153,14 +153,14 @@ public class TvgPaintTests : IDisposable
 
         var pts = shape.GetOrientedBounds();
         Assert.Equal(4, pts.Length);
-        Assert.Equal(100.0f, pts[0].x);
-        Assert.Equal(100.0f, pts[3].x);
-        Assert.Equal(121.0f, pts[0].y);
-        Assert.Equal(121.0f, pts[1].y);
-        Assert.Equal(120.0f, pts[1].x);
-        Assert.Equal(120.0f, pts[2].x);
-        Assert.Equal(221.0f, pts[2].y);
-        Assert.Equal(221.0f, pts[3].y);
+        Assert.Equal(100.0f, pts[0].X);
+        Assert.Equal(100.0f, pts[3].X);
+        Assert.Equal(121.0f, pts[0].Y);
+        Assert.Equal(121.0f, pts[1].Y);
+        Assert.Equal(120.0f, pts[1].X);
+        Assert.Equal(120.0f, pts[2].X);
+        Assert.Equal(221.0f, pts[2].Y);
+        Assert.Equal(221.0f, pts[3].Y);
 
         canvas.Sync();
 
@@ -180,14 +180,14 @@ public class TvgPaintTests : IDisposable
         Assert.Equal(200.0f, h);
 
         pts = shape.GetOrientedBounds();
-        Assert.Equal(0.0f, pts[0].x);
-        Assert.Equal(0.0f, pts[3].x);
-        Assert.Equal(10.0f, pts[0].y);
-        Assert.Equal(10.0f, pts[1].y);
-        Assert.Equal(20.0f, pts[1].x);
-        Assert.Equal(20.0f, pts[2].x);
-        Assert.Equal(210.0f, pts[2].y);
-        Assert.Equal(210.0f, pts[3].y);
+        Assert.Equal(0.0f, pts[0].X);
+        Assert.Equal(0.0f, pts[3].X);
+        Assert.Equal(10.0f, pts[0].Y);
+        Assert.Equal(10.0f, pts[1].Y);
+        Assert.Equal(20.0f, pts[1].X);
+        Assert.Equal(20.0f, pts[2].X);
+        Assert.Equal(210.0f, pts[2].Y);
+        Assert.Equal(210.0f, pts[3].Y);
 
         canvas.Sync();
 
@@ -207,14 +207,14 @@ public class TvgPaintTests : IDisposable
         Assert.Equal(192.0f, w);
 
         pts = shape.GetOrientedBounds();
-        Assert.Equal(4.0f, pts[0].x);
-        Assert.Equal(4.0f, pts[3].x);
-        Assert.Equal(4.0f, pts[0].y);
-        Assert.Equal(4.0f, pts[1].y);
-        Assert.Equal(196.0f, pts[1].x);
-        Assert.Equal(196.0f, pts[2].x);
-        Assert.Equal(16.0f, pts[2].y);
-        Assert.Equal(16.0f, pts[3].y);
+        Assert.Equal(4.0f, pts[0].X);
+        Assert.Equal(4.0f, pts[3].X);
+        Assert.Equal(4.0f, pts[0].Y);
+        Assert.Equal(4.0f, pts[1].Y);
+        Assert.Equal(196.0f, pts[1].X);
+        Assert.Equal(196.0f, pts[2].X);
+        Assert.Equal(16.0f, pts[2].Y);
+        Assert.Equal(16.0f, pts[3].Y);
     }
 
     [Fact]

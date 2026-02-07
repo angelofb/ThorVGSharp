@@ -137,8 +137,7 @@ public abstract class TvgPaint : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetTransform(TvgMatrix matrix)
     {
-        var nativeMatrix = TvgMatrix.Map(matrix);
-        var result = NativeMethods.tvg_paint_set_transform(Handle, &nativeMatrix);
+        var result = NativeMethods.tvg_paint_set_transform(Handle, &matrix);
         TvgResultHelper.CheckResult(result, "paint set transform");
     }
 
@@ -147,9 +146,9 @@ public abstract class TvgPaint : IDisposable
     /// </summary>
     public unsafe TvgMatrix GetTransform()
     {
-        Tvg_Matrix nativeMatrix;
-        NativeMethods.tvg_paint_get_transform(Handle, &nativeMatrix);
-        return TvgMatrix.Map(nativeMatrix);
+        TvgMatrix matrix;
+        NativeMethods.tvg_paint_get_transform(Handle, &matrix);
+        return matrix;
     }
 
     /// <summary>
@@ -222,18 +221,18 @@ public abstract class TvgPaint : IDisposable
     /// Returns 4 corner points of the bounding box.
     /// </summary>
     /// <returns>Array of 4 points representing the corners of the OBB</returns>
-    public unsafe (float x, float y)[] GetOrientedBounds()
+    public unsafe TvgPoint[] GetOrientedBounds()
     {
-        var points = stackalloc Tvg_Point[4];
+        var points = stackalloc TvgPoint[4];
         var result = NativeMethods.tvg_paint_get_obb(Handle, points);
 
         if (result != Tvg_Result.TVG_RESULT_SUCCESS)
-            return Array.Empty<(float, float)>();
+            return [];
 
-        var output = new (float x, float y)[4];
+        var output = new TvgPoint[4];
         for (int i = 0; i < 4; i++)
         {
-            output[i] = (points[i].x, points[i].y);
+            output[i] = points[i];
         }
         return output;
     }
