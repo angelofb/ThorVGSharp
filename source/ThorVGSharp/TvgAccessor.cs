@@ -24,10 +24,10 @@ public class TvgAccessor : IDisposable
     /// <summary>
     /// Creates a new accessor.
     /// </summary>
-    public static unsafe TvgAccessor? Create()
+    public static unsafe TvgAccessor Create()
     {
         _Tvg_Accessor* handle = NativeMethods.tvg_accessor_new();
-        return handle != null ? new TvgAccessor(handle) : null;
+        return handle != null ? new TvgAccessor(handle) : throw new TvgException("Failed to create accessor.");
     }
 
     /// <summary>

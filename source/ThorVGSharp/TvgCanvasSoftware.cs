@@ -13,10 +13,10 @@ public class TvgCanvasSoftware : TvgCanvas
     /// Creates a new software canvas.
     /// </summary>
     /// <param name="option">Engine creation option</param>
-    public static unsafe TvgCanvasSoftware? Create(TvgEngineOption option = TvgEngineOption.Default)
+    public static unsafe TvgCanvasSoftware Create(TvgEngineOption option = TvgEngineOption.Default)
     {
         _Tvg_Canvas* handle = NativeMethods.tvg_swcanvas_create((Tvg_Engine_Option)option);
-        return handle != null ? new TvgCanvasSoftware(handle) : null;
+        return handle != null ? new TvgCanvasSoftware(handle) : throw new TvgException("Failed to create software canvas.");
     }
 
     /// <summary>

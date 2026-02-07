@@ -13,10 +13,10 @@ public class TvgCanvasOpenGL : TvgCanvas
     /// Creates a new OpenGL canvas.
     /// </summary>
     /// <param name="option">Engine creation option</param>
-    public static unsafe TvgCanvasOpenGL? Create(TvgEngineOption option = TvgEngineOption.Default)
+    public static unsafe TvgCanvasOpenGL Create(TvgEngineOption option = TvgEngineOption.Default)
     {
         _Tvg_Canvas* handle = NativeMethods.tvg_glcanvas_create((Tvg_Engine_Option)option);
-        return handle != null ? new TvgCanvasOpenGL(handle) : null;
+        return handle != null ? new TvgCanvasOpenGL(handle) : throw new TvgException("Failed to create OpenGL canvas.");
     }
 
     /// <summary>

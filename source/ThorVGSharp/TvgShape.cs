@@ -12,10 +12,10 @@ public class TvgShape : TvgPaint
     /// <summary>
     /// Creates a new shape.
     /// </summary>
-    public static unsafe TvgShape? Create()
+    public static unsafe TvgShape Create()
     {
         _Tvg_Paint* handle = NativeMethods.tvg_shape_new();
-        return handle != null ? new TvgShape(handle) : null;
+        return handle != null ? new TvgShape(handle) : throw new TvgException("Failed to create shape.");
     }
 
     /// <summary>

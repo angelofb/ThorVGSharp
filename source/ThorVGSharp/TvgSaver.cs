@@ -22,10 +22,10 @@ public class TvgSaver : IDisposable
     /// <summary>
     /// Creates a new saver.
     /// </summary>
-    public static unsafe TvgSaver? Create()
+    public static unsafe TvgSaver Create()
     {
         _Tvg_Saver* handle = NativeMethods.tvg_saver_new();
-        return handle != null ? new TvgSaver(handle) : null;
+        return handle != null ? new TvgSaver(handle) : throw new TvgException("Failed to create saver.");
     }
 
     /// <summary>

@@ -32,10 +32,10 @@ public class TvgPicture : TvgPaint
     /// <summary>
     /// Creates a new picture.
     /// </summary>
-    public static unsafe TvgPicture? Create()
+    public static unsafe TvgPicture Create()
     {
         _Tvg_Paint* handle = NativeMethods.tvg_picture_new();
-        return handle != null ? new TvgPicture(handle) : null;
+        return handle != null ? new TvgPicture(handle) : throw new TvgException("Failed to create picture.");
     }
 
     /// <summary>

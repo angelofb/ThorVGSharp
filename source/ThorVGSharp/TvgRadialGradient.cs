@@ -12,10 +12,10 @@ public class TvgRadialGradient : TvgFill
     /// <summary>
     /// Creates a new radial gradient.
     /// </summary>
-    public static unsafe TvgRadialGradient? Create()
+    public static unsafe TvgRadialGradient Create()
     {
         _Tvg_Gradient* handle = NativeMethods.tvg_radial_gradient_new();
-        return handle != null ? new TvgRadialGradient(handle) : null;
+        return handle != null ? new TvgRadialGradient(handle) : throw new TvgException("Failed to create radial gradient.");
     }
 
     /// <summary>

@@ -12,10 +12,10 @@ public class TvgLinearGradient : TvgFill
     /// <summary>
     /// Creates a new linear gradient.
     /// </summary>
-    public static unsafe TvgLinearGradient? Create()
+    public static unsafe TvgLinearGradient Create()
     {
         _Tvg_Gradient* handle = NativeMethods.tvg_linear_gradient_new();
-        return handle != null ? new TvgLinearGradient(handle) : null;
+        return handle != null ? new TvgLinearGradient(handle) : throw new TvgException("Failed to create linear gradient.");
     }
 
     /// <summary>

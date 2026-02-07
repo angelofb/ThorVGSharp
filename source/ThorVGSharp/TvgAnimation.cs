@@ -22,10 +22,10 @@ public class TvgAnimation : IDisposable
     /// <summary>
     /// Creates a new animation.
     /// </summary>
-    public static unsafe TvgAnimation? Create()
+    public static unsafe TvgAnimation Create()
     {
         _Tvg_Animation* handle = NativeMethods.tvg_animation_new();
-        return handle != null ? new TvgAnimation(handle) : null;
+        return handle != null ? new TvgAnimation(handle) : throw new TvgException("Failed to create animation.");
     }
 
     /// <summary>

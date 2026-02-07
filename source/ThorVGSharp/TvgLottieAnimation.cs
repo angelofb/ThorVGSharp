@@ -22,10 +22,10 @@ public class TvgLottieAnimation : IDisposable
     /// <summary>
     /// Creates a new Lottie animation.
     /// </summary>
-    public static unsafe TvgLottieAnimation? Create()
+    public static unsafe TvgLottieAnimation Create()
     {
         _Tvg_Animation* handle = NativeMethods.tvg_lottie_animation_new();
-        return handle != null ? new TvgLottieAnimation(handle) : null;
+        return handle != null ? new TvgLottieAnimation(handle) : throw new TvgException("Failed to create lottie animation.");
     }
 
     /// <summary>

@@ -12,10 +12,10 @@ public class TvgScene : TvgPaint
     /// <summary>
     /// Creates a new scene.
     /// </summary>
-    public static unsafe TvgScene? Create()
+    public static unsafe TvgScene Create()
     {
         _Tvg_Paint* handle = NativeMethods.tvg_scene_new();
-        return handle != null ? new TvgScene(handle) : null;
+        return handle != null ? new TvgScene(handle) : throw new TvgException("Failed to create scene.");
     }
 
     /// <summary>

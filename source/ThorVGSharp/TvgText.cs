@@ -12,10 +12,10 @@ public class TvgText : TvgPaint
     /// <summary>
     /// Creates a new text object.
     /// </summary>
-    public static unsafe TvgText? Create()
+    public static unsafe TvgText Create()
     {
         _Tvg_Paint* handle = NativeMethods.tvg_text_new();
-        return handle != null ? new TvgText(handle) : null;
+        return handle != null ? new TvgText(handle) : throw new TvgException("Failed to create text.");
     }
 
     /// <summary>

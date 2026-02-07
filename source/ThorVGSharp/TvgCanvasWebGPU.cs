@@ -13,10 +13,10 @@ public class TvgCanvasWebGPU : TvgCanvas
     /// Creates a new WebGPU canvas.
     /// </summary>
     /// <param name="option">Engine creation option</param>
-    public static unsafe TvgCanvasWebGPU? Create(TvgEngineOption option = TvgEngineOption.Default)
+    public static unsafe TvgCanvasWebGPU Create(TvgEngineOption option = TvgEngineOption.Default)
     {
         _Tvg_Canvas* handle = NativeMethods.tvg_wgcanvas_create((Tvg_Engine_Option)option);
-        return handle != null ? new TvgCanvasWebGPU(handle) : null;
+        return handle != null ? new TvgCanvasWebGPU(handle) : throw new TvgException("Failed to create WebGPU canvas.");
     }
 
     /// <summary>
