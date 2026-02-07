@@ -14,8 +14,10 @@ public static class TvgFontManager
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public static unsafe void Load(string path)
     {
-        byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
-        fixed (byte* pathPtr = pathBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(path);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(path, buffer);
+        fixed (byte* pathPtr = buffer)
         {
             var result = NativeMethods.tvg_font_load((sbyte*)pathPtr);
             TvgResultHelper.CheckResult(result, "font load");
@@ -38,12 +40,20 @@ public static class TvgFontManager
         if (data.IsEmpty)
             throw new ArgumentException("Font data cannot be empty.", nameof(data));
 
-        byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(name + '\0');
-        byte[]? mimeBytes = mimeType != null ? System.Text.Encoding.UTF8.GetBytes(mimeType + '\0') : null;
+        int nameMaxBytes = StringHelper.GetMaxByteCount(name);
+        int mimeMaxBytes = mimeType != null ? StringHelper.GetMaxByteCount(mimeType) : 0;
 
-        fixed (byte* namePtr = nameBytes)
+        Span<byte> nameBuffer = nameMaxBytes <= 256 ? stackalloc byte[nameMaxBytes] : new byte[nameMaxBytes];
+        StringHelper.EncodeToUtf8(name, nameBuffer);
+
+        Span<byte> mimeBuffer = mimeType != null
+            ? (mimeMaxBytes <= 256 ? stackalloc byte[mimeMaxBytes] : new byte[mimeMaxBytes])
+            : Span<byte>.Empty;
+        if (mimeType != null) StringHelper.EncodeToUtf8(mimeType, mimeBuffer);
+
+        fixed (byte* namePtr = nameBuffer)
         fixed (byte* dataPtr = data)
-        fixed (byte* mimePtr = mimeBytes)
+        fixed (byte* mimePtr = mimeBuffer)
         {
             var result = NativeMethods.tvg_font_load_data((sbyte*)namePtr, (sbyte*)dataPtr, (uint)data.Length, (sbyte*)mimePtr, (byte)(copy ? 1 : 0));
             TvgResultHelper.CheckResult(result, "font load data");
@@ -57,8 +67,10 @@ public static class TvgFontManager
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public static unsafe void Unload(string path)
     {
-        byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
-        fixed (byte* pathPtr = pathBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(path);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(path, buffer);
+        fixed (byte* pathPtr = buffer)
         {
             var result = NativeMethods.tvg_font_unload((sbyte*)pathPtr);
             TvgResultHelper.CheckResult(result, "font unload");

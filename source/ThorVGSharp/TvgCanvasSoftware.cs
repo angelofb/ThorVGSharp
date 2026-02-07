@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Software rendering canvas that renders to a pixel buffer.
 /// </summary>
-public class TvgCanvasSoftware : TvgCanvas
+public sealed class TvgCanvasSoftware : TvgCanvas
 {
     internal unsafe TvgCanvasSoftware(_Tvg_Canvas* handle) : base(handle) { }
 

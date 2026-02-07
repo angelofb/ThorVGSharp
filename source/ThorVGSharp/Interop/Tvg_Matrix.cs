@@ -1,5 +1,8 @@
+using System.Runtime.InteropServices;
+
 namespace ThorVGSharp.Interop;
 
+[StructLayout(LayoutKind.Sequential)]
 internal partial struct Tvg_Matrix
 {
     public float e11;

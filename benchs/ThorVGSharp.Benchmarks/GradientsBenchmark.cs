@@ -55,9 +55,9 @@ public class GradientsBenchmark
 
             var colorStops = new TvgColorStop[]
             {
-                new TvgColorStop { Offset = 0, R = 255, G = 100, B = 100, A = 255 },
-                new TvgColorStop { Offset = 0.5f, R = 100, G = 255, B = 100, A = 255 },
-                new TvgColorStop { Offset = 1, R = 100, G = 100, B = 255, A = 255 }
+                new(0, 255, 100, 100, 255),
+                new(0.5f, 100, 255, 100, 255),
+                new(1, 100, 100, 255, 255)
             };
             gradient.SetColorStops(colorStops);
 

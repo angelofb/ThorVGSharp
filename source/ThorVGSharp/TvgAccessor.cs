@@ -7,7 +7,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Provides functionality to traverse scene graphs and access nested paint objects.
 /// </summary>
-public class TvgAccessor : IDisposable
+public sealed class TvgAccessor : IDisposable
 {
     private bool _disposed;
 
@@ -92,8 +92,10 @@ public class TvgAccessor : IDisposable
     /// </summary>
     public static unsafe uint GenerateId(string name)
     {
-        byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(name + '\0');
-        fixed (byte* namePtr = nameBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(name);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(name, buffer);
+        fixed (byte* namePtr = buffer)
         {
             return NativeMethods.tvg_accessor_generate_id((sbyte*)namePtr);
         }
@@ -102,7 +104,7 @@ public class TvgAccessor : IDisposable
     /// <summary>
     /// Releases the native resources.
     /// </summary>
-    protected virtual unsafe void Dispose(bool disposing)
+    private unsafe void Dispose(bool disposing)
     {
         if (!_disposed)
         {

@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Represents a linear gradient fill.
 /// </summary>
-public class TvgLinearGradient : TvgFill
+public sealed class TvgLinearGradient : TvgFill
 {
     internal unsafe TvgLinearGradient(_Tvg_Gradient* handle) : base(handle) { }
 

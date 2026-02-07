@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
@@ -39,14 +40,25 @@ public abstract class TvgFill : IDisposable
     /// Sets the color stops for the gradient.
     /// </summary>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void SetColorStops(TvgColorStop[] stops)
+    public void SetColorStops(TvgColorStop[] stops)
     {
         if (stops == null || stops.Length == 0)
             throw new ArgumentException("Color stops cannot be null or empty.", nameof(stops));
 
-        Tvg_Color_Stop[] nativeStops = new Tvg_Color_Stop[stops.Length];
-        for (int i = 0; i < stops.Length; i++)
-            nativeStops[i] = TvgColorStop.Map(stops[i]);
+        SetColorStops(stops.AsSpan());
+    }
+
+    /// <summary>
+    /// Sets the color stops for the gradient.
+    /// </summary>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void SetColorStops(ReadOnlySpan<TvgColorStop> stops)
+    {
+        if (stops.IsEmpty)
+            throw new ArgumentException("Color stops cannot be empty.", nameof(stops));
+
+        // TvgColorStop and Tvg_Color_Stop have identical layout, use zero-copy cast
+        ReadOnlySpan<Tvg_Color_Stop> nativeStops = MemoryMarshal.Cast<TvgColorStop, Tvg_Color_Stop>(stops);
 
         fixed (Tvg_Color_Stop* nativeStopsPtr = nativeStops)
         {

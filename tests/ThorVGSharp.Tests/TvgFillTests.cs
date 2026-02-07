@@ -44,10 +44,10 @@ public class TvgFillTests : IDisposable
 
         var cs2 = new TvgColorStop[]
         {
-            new() { Offset = 0.0f, R = 0, G = 0, B = 0, A = 0 },
-            new() { Offset = 0.2f, R = 50, G = 25, B = 50, A = 25 },
-            new() { Offset = 0.5f, R = 100, G = 100, B = 100, A = 125 },
-            new() { Offset = 1.0f, R = 255, G = 255, B = 255, A = 255 }
+            new(0.0f, 0, 0, 0, 0),
+            new(0.2f, 50, 25, 50, 25),
+            new(0.5f, 100, 100, 100, 125),
+            new(1.0f, 255, 255, 255, 255)
         };
 
         Assert.Throws<ArgumentException>(() => fill.SetColorStops(Array.Empty<TvgColorStop>()));
@@ -67,7 +67,7 @@ public class TvgFillTests : IDisposable
         // In C# we can't clear, but we can set new ones
         var emptyCs = new TvgColorStop[]
         {
-            new() { Offset = 0.0f, R = 0, G = 0, B = 0, A = 0 }
+            new(0.0f, 0, 0, 0, 0)
         };
         fill.SetColorStops(emptyCs);
         cs = fill.GetColorStops();
@@ -100,18 +100,7 @@ public class TvgFillTests : IDisposable
         Assert.Equal(0.0f, mGet.E32, 6);
         Assert.Equal(1.0f, mGet.E33, 6);
 
-        var mSet = new TvgMatrix
-        {
-            E11 = 1.1f,
-            E12 = 2.2f,
-            E13 = 3.3f,
-            E21 = 4.4f,
-            E22 = 5.5f,
-            E23 = 6.6f,
-            E31 = -7.7f,
-            E32 = -8.8f,
-            E33 = -9.9f
-        };
+        var mSet = new TvgMatrix(1.1f, 2.2f, 3.3f, 4.4f, 5.5f, 6.6f, -7.7f, -8.8f, -9.9f);
         fill.SetTransform(mSet);
 
         // transformation was set
@@ -187,28 +176,17 @@ public class TvgFillTests : IDisposable
         // Setup
         var cs = new TvgColorStop[]
         {
-            new() { Offset = 0.0f, R = 0, G = 0, B = 0, A = 0 },
-            new() { Offset = 0.2f, R = 50, G = 25, B = 50, A = 25 },
-            new() { Offset = 0.5f, R = 100, G = 100, B = 100, A = 125 },
-            new() { Offset = 1.0f, R = 255, G = 255, B = 255, A = 255 }
+            new(0.0f, 0, 0, 0, 0),
+            new(0.2f, 50, 25, 50, 25),
+            new(0.5f, 100, 100, 100, 125),
+            new(1.0f, 255, 255, 255, 255)
         };
 
         fill.SetColorStops(cs);
         fill.SetSpread(TvgStrokeFill.Reflect);
         fill.SetLinear(-10.0f, 10.0f, 100.0f, 120.0f);
 
-        var m = new TvgMatrix
-        {
-            E11 = 1.1f,
-            E12 = 2.2f,
-            E13 = 3.3f,
-            E21 = 4.4f,
-            E22 = 5.5f,
-            E23 = 6.6f,
-            E31 = -7.7f,
-            E32 = -8.8f,
-            E33 = -9.9f
-        };
+        var m = new TvgMatrix(1.1f, 2.2f, 3.3f, 4.4f, 5.5f, 6.6f, -7.7f, -8.8f, -9.9f);
         fill.SetTransform(m);
 
         // Duplication
@@ -255,28 +233,17 @@ public class TvgFillTests : IDisposable
         // Setup
         var cs = new TvgColorStop[]
         {
-            new() { Offset = 0.0f, R = 0, G = 0, B = 0, A = 0 },
-            new() { Offset = 0.2f, R = 50, G = 25, B = 50, A = 25 },
-            new() { Offset = 0.5f, R = 100, G = 100, B = 100, A = 125 },
-            new() { Offset = 1.0f, R = 255, G = 255, B = 255, A = 255 }
+            new(0.0f, 0, 0, 0, 0),
+            new(0.2f, 50, 25, 50, 25),
+            new(0.5f, 100, 100, 100, 125),
+            new(1.0f, 255, 255, 255, 255)
         };
 
         fill.SetColorStops(cs);
         fill.SetSpread(TvgStrokeFill.Reflect);
         fill.SetRadial(100.0f, 120.0f, 50.0f, 10.0f, 20.0f, 5.0f);
 
-        var m = new TvgMatrix
-        {
-            E11 = 1.1f,
-            E12 = 2.2f,
-            E13 = 3.3f,
-            E21 = 4.4f,
-            E22 = 5.5f,
-            E23 = 6.6f,
-            E31 = -7.7f,
-            E32 = -8.8f,
-            E33 = -9.9f
-        };
+        var m = new TvgMatrix(1.1f, 2.2f, 3.3f, 4.4f, 5.5f, 6.6f, -7.7f, -8.8f, -9.9f);
         fill.SetTransform(m);
 
         // Duplication

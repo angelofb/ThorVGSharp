@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Represents text rendering with font, styling, and layout capabilities.
 /// </summary>
-public class TvgText : TvgPaint
+public sealed class TvgText : TvgPaint
 {
     internal unsafe TvgText(_Tvg_Paint* handle) : base(handle) { }
 
@@ -24,8 +24,10 @@ public class TvgText : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetFont(string fontName)
     {
-        byte[] fontBytes = System.Text.Encoding.UTF8.GetBytes(fontName + '\0');
-        fixed (byte* fontPtr = fontBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(fontName);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(fontName, buffer);
+        fixed (byte* fontPtr = buffer)
         {
             var result = NativeMethods.tvg_text_set_font(Handle, (sbyte*)fontPtr);
             TvgResultHelper.CheckResult(result, "text set font");
@@ -48,8 +50,10 @@ public class TvgText : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetText(string text)
     {
-        byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(text + '\0');
-        fixed (byte* textPtr = textBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(text);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(text, buffer);
+        fixed (byte* textPtr = buffer)
         {
             var result = NativeMethods.tvg_text_set_text(Handle, (sbyte*)textPtr);
             TvgResultHelper.CheckResult(result, "text set text");

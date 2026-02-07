@@ -14,7 +14,7 @@ public class TvgException : Exception
 /// <summary>
 /// Exception thrown when an invalid argument is passed to a ThorVG function.
 /// </summary>
-public class TvgInvalidArgumentException : TvgException
+public sealed class TvgInvalidArgumentException : TvgException
 {
     internal TvgInvalidArgumentException(string message) : base(message) { }
 }
@@ -22,7 +22,7 @@ public class TvgInvalidArgumentException : TvgException
 /// <summary>
 /// Exception thrown when ThorVG is in an insufficient condition to perform the requested operation.
 /// </summary>
-public class TvgInsufficientConditionException : TvgException
+public sealed class TvgInsufficientConditionException : TvgException
 {
     internal TvgInsufficientConditionException(string message) : base(message) { }
 }
@@ -30,7 +30,7 @@ public class TvgInsufficientConditionException : TvgException
 /// <summary>
 /// Exception thrown when ThorVG fails to allocate memory.
 /// </summary>
-public class TvgFailedAllocationException : TvgException
+public sealed class TvgFailedAllocationException : TvgException
 {
     internal TvgFailedAllocationException(string message) : base(message) { }
 }
@@ -38,7 +38,7 @@ public class TvgFailedAllocationException : TvgException
 /// <summary>
 /// Exception thrown when ThorVG detects memory corruption.
 /// </summary>
-public class TvgMemoryCorruptionException : TvgException
+public sealed class TvgMemoryCorruptionException : TvgException
 {
     internal TvgMemoryCorruptionException(string message) : base(message) { }
 }
@@ -46,7 +46,7 @@ public class TvgMemoryCorruptionException : TvgException
 /// <summary>
 /// Exception thrown when a requested operation is not supported.
 /// </summary>
-public class TvgNotSupportedException : TvgException
+public sealed class TvgNotSupportedException : TvgException
 {
     internal TvgNotSupportedException(string message) : base(message) { }
 }
@@ -54,7 +54,7 @@ public class TvgNotSupportedException : TvgException
 /// <summary>
 /// Exception thrown when an unknown error occurs in ThorVG.
 /// </summary>
-public class TvgUnknownException : TvgException
+public sealed class TvgUnknownException : TvgException
 {
     internal TvgUnknownException(string message) : base(message) { }
 }

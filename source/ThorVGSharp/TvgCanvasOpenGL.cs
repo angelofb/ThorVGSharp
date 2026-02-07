@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// OpenGL rendering canvas.
 /// </summary>
-public class TvgCanvasOpenGL : TvgCanvas
+public sealed class TvgCanvasOpenGL : TvgCanvas
 {
     internal unsafe TvgCanvasOpenGL(_Tvg_Canvas* handle) : base(handle) { }
 

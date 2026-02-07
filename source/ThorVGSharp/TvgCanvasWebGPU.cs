@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// WebGPU rendering canvas.
 /// </summary>
-public class TvgCanvasWebGPU : TvgCanvas
+public sealed class TvgCanvasWebGPU : TvgCanvas
 {
     internal unsafe TvgCanvasWebGPU(_Tvg_Canvas* handle) : base(handle) { }
 

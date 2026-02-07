@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Represents a container for multiple paint objects.
 /// </summary>
-public class TvgScene : TvgPaint
+public sealed class TvgScene : TvgPaint
 {
     internal unsafe TvgScene(_Tvg_Paint* handle) : base(handle) { }
 

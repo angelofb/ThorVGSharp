@@ -32,18 +32,7 @@ public class TvgPaintTests : IDisposable
         Assert.Equal(1.0f, m1.E33, 6);
 
         // Custom transform
-        var m2 = new TvgMatrix
-        {
-            E11 = 1.0f,
-            E12 = 2.0f,
-            E13 = 3.0f,
-            E21 = 4.0f,
-            E22 = 0.0f,
-            E23 = -4.0f,
-            E31 = -3.0f,
-            E32 = -2.0f,
-            E33 = -1.0f
-        };
+        var m2 = new TvgMatrix(1.0f, 2.0f, 3.0f, 4.0f, 0.0f, -4.0f, -3.0f, -2.0f, -1.0f);
         shape.SetTransform(m2);
 
         var m3 = shape.GetTransform();
@@ -179,18 +168,7 @@ public class TvgPaintTests : IDisposable
         shape.Reset();
         shape.MoveTo(0.0f, 10.0f);
         shape.LineTo(20.0f, 210.0f);
-        var identity = new TvgMatrix
-        {
-            E11 = 1.0f,
-            E12 = 0.0f,
-            E13 = 0.0f,
-            E21 = 0.0f,
-            E22 = 1.0f,
-            E23 = 0.0f,
-            E31 = 0.0f,
-            E32 = 0.0f,
-            E33 = 1.0f
-        };
+        var identity = new TvgMatrix(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
         shape.SetTransform(identity);
 
         canvas.Update();

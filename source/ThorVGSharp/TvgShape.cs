@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Represents a vector shape with path data, fill, and stroke properties.
 /// </summary>
-public class TvgShape : TvgPaint
+public sealed class TvgShape : TvgPaint
 {
     internal unsafe TvgShape(_Tvg_Paint* handle) : base(handle) { }
 

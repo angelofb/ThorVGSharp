@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Provides functionality to save paint objects and animations to files.
 /// </summary>
-public class TvgSaver : IDisposable
+public sealed class TvgSaver : IDisposable
 {
     private bool _disposed;
 
@@ -39,8 +39,10 @@ public class TvgSaver : IDisposable
     {
         ArgumentNullException.ThrowIfNull(paint);
 
-        byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
-        fixed (byte* pathPtr = pathBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(path);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(path, buffer);
+        fixed (byte* pathPtr = buffer)
         {
             var result = NativeMethods.tvg_saver_save_paint(Handle, paint.Handle, (sbyte*)pathPtr, quality);
             TvgResultHelper.CheckResult(result, "saver save paint");
@@ -59,8 +61,10 @@ public class TvgSaver : IDisposable
     {
         ArgumentNullException.ThrowIfNull(animation);
 
-        byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
-        fixed (byte* pathPtr = pathBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(path);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(path, buffer);
+        fixed (byte* pathPtr = buffer)
         {
             var result = NativeMethods.tvg_saver_save_animation(Handle, animation.Handle, (sbyte*)pathPtr, quality, fps);
             TvgResultHelper.CheckResult(result, "saver save animation");
@@ -80,7 +84,7 @@ public class TvgSaver : IDisposable
     /// <summary>
     /// Releases the native resources.
     /// </summary>
-    protected virtual unsafe void Dispose(bool disposing)
+    private unsafe void Dispose(bool disposing)
     {
         if (!_disposed)
         {

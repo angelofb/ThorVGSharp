@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Provides frame control for animated content.
 /// </summary>
-public class TvgAnimation : IDisposable
+public sealed class TvgAnimation : IDisposable
 {
     private bool _disposed;
 
@@ -119,7 +119,7 @@ public class TvgAnimation : IDisposable
     /// <summary>
     /// Releases the native resources.
     /// </summary>
-    protected virtual unsafe void Dispose(bool disposing)
+    private unsafe void Dispose(bool disposing)
     {
         if (!_disposed)
         {

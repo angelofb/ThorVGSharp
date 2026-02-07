@@ -1,17 +1,28 @@
 
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
 
-public partial struct TvgColorStop
+[StructLayout(LayoutKind.Sequential)]
+public readonly partial struct TvgColorStop
 {
-    public float Offset;
+    public readonly float Offset;
 
-    public byte R;
-    public byte G;
-    public byte B;
-    public byte A;
+    public readonly byte R;
+    public readonly byte G;
+    public readonly byte B;
+    public readonly byte A;
+
+    public TvgColorStop(float offset, byte r, byte g, byte b, byte a)
+    {
+        Offset = offset;
+        R = r;
+        G = g;
+        B = b;
+        A = a;
+    }
 
     /// <summary>
     /// Maps a native Tvg_Color_Stop to a managed TvgColorStop.

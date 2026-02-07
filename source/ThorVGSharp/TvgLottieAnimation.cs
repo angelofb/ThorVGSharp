@@ -5,7 +5,7 @@ namespace ThorVGSharp;
 /// <summary>
 /// Represents a Lottie animation with advanced features like slots, markers, and quality control.
 /// </summary>
-public class TvgLottieAnimation : IDisposable
+public sealed class TvgLottieAnimation : IDisposable
 {
     private bool _disposed;
 
@@ -34,8 +34,10 @@ public class TvgLottieAnimation : IDisposable
     /// <param name="slot">Slot name</param>
     public unsafe uint GenerateSlot(string slot)
     {
-        byte[] slotBytes = System.Text.Encoding.UTF8.GetBytes(slot + '\0');
-        fixed (byte* slotPtr = slotBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(slot);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(slot, buffer);
+        fixed (byte* slotPtr = buffer)
         {
             return NativeMethods.tvg_lottie_animation_gen_slot(Handle, (sbyte*)slotPtr);
         }
@@ -68,8 +70,10 @@ public class TvgLottieAnimation : IDisposable
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetMarker(string marker)
     {
-        byte[] markerBytes = System.Text.Encoding.UTF8.GetBytes(marker + '\0');
-        fixed (byte* markerPtr = markerBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(marker);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(marker, buffer);
+        fixed (byte* markerPtr = buffer)
         {
             var result = NativeMethods.tvg_lottie_animation_set_marker(Handle, (sbyte*)markerPtr);
             TvgResultHelper.CheckResult(result, "lottie animation set marker");
@@ -121,13 +125,19 @@ public class TvgLottieAnimation : IDisposable
     /// <param name="var">Variable name</param>
     /// <param name="val">Value to assign</param>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
-    public unsafe void Assign(string layer, uint ix, string var, float val)
+    public unsafe void Assign(string layer, uint ix, string @var, float val)
     {
-        byte[] layerBytes = System.Text.Encoding.UTF8.GetBytes(layer + '\0');
-        byte[] varBytes = System.Text.Encoding.UTF8.GetBytes(var + '\0');
+        int layerMaxBytes = StringHelper.GetMaxByteCount(layer);
+        int varMaxBytes = StringHelper.GetMaxByteCount(@var);
 
-        fixed (byte* layerPtr = layerBytes)
-        fixed (byte* varPtr = varBytes)
+        Span<byte> layerBuffer = layerMaxBytes <= 256 ? stackalloc byte[layerMaxBytes] : new byte[layerMaxBytes];
+        Span<byte> varBuffer = varMaxBytes <= 256 ? stackalloc byte[varMaxBytes] : new byte[varMaxBytes];
+
+        StringHelper.EncodeToUtf8(layer, layerBuffer);
+        StringHelper.EncodeToUtf8(@var, varBuffer);
+
+        fixed (byte* layerPtr = layerBuffer)
+        fixed (byte* varPtr = varBuffer)
         {
             var result = NativeMethods.tvg_lottie_animation_assign(Handle, (sbyte*)layerPtr, ix, (sbyte*)varPtr, val);
             TvgResultHelper.CheckResult(result, "lottie animation assign");
@@ -234,7 +244,7 @@ public class TvgLottieAnimation : IDisposable
     /// <summary>
     /// Releases the native resources.
     /// </summary>
-    protected virtual unsafe void Dispose(bool disposing)
+    private unsafe void Dispose(bool disposing)
     {
         if (!_disposed)
         {

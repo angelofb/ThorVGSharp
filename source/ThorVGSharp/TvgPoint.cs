@@ -1,13 +1,21 @@
 
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using ThorVGSharp.Interop;
 
 namespace ThorVGSharp;
 
-public partial struct TvgPoint
+[StructLayout(LayoutKind.Sequential)]
+public readonly partial struct TvgPoint
 {
-    public float X;
-    public float Y;
+    public readonly float X;
+    public readonly float Y;
+
+    public TvgPoint(float x, float y)
+    {
+        X = x;
+        Y = y;
+    }
 
     /// <summary>
     /// Maps a native Tvg_Point to a managed TvgPoint.

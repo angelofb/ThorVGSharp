@@ -21,7 +21,7 @@ internal unsafe delegate byte Tvg_Picture_Asset_Resolver(_Tvg_Paint* paint, sbyt
 /// <summary>
 /// Represents a raster or vector image.
 /// </summary>
-public class TvgPicture : TvgPaint
+public sealed class TvgPicture : TvgPaint
 {
     // Keep reference to prevent GC
     private TvgAssetResolver? _assetResolver;
@@ -44,8 +44,10 @@ public class TvgPicture : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void Load(string path)
     {
-        byte[] pathBytes = System.Text.Encoding.UTF8.GetBytes(path + '\0');
-        fixed (byte* pathPtr = pathBytes)
+        int maxBytes = StringHelper.GetMaxByteCount(path);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(path, buffer);
+        fixed (byte* pathPtr = buffer)
         {
             var result = NativeMethods.tvg_picture_load(Handle, (sbyte*)pathPtr);
             TvgResultHelper.CheckResult(result, "picture load");
@@ -80,18 +82,26 @@ public class TvgPicture : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void LoadData(ReadOnlySpan<byte> data, string? mimeType = null, string? resourcePath = null, bool copy = true)
     {
-        fixed (byte* dataPtr = data)
-        {
-            byte[]? mimeBytes = mimeType != null ? System.Text.Encoding.UTF8.GetBytes(mimeType + '\0') : null;
-            byte[]? rpathBytes = resourcePath != null ? System.Text.Encoding.UTF8.GetBytes(resourcePath + '\0') : null;
+        int mimeMaxBytes = mimeType != null ? StringHelper.GetMaxByteCount(mimeType) : 0;
+        int rpathMaxBytes = resourcePath != null ? StringHelper.GetMaxByteCount(resourcePath) : 0;
 
-            fixed (byte* mimePtr = mimeBytes)
-            fixed (byte* rpathPtr = rpathBytes)
-            {
-                var result = NativeMethods.tvg_picture_load_data(Handle, (sbyte*)dataPtr, (uint)data.Length,
-                    (sbyte*)mimePtr, (sbyte*)rpathPtr, (byte)(copy ? 1 : 0));
-                TvgResultHelper.CheckResult(result, "picture load data");
-            }
+        Span<byte> mimeBuffer = mimeType != null
+            ? (mimeMaxBytes <= 256 ? stackalloc byte[mimeMaxBytes] : new byte[mimeMaxBytes])
+            : Span<byte>.Empty;
+        Span<byte> rpathBuffer = resourcePath != null
+            ? (rpathMaxBytes <= 256 ? stackalloc byte[rpathMaxBytes] : new byte[rpathMaxBytes])
+            : Span<byte>.Empty;
+
+        if (mimeType != null) StringHelper.EncodeToUtf8(mimeType, mimeBuffer);
+        if (resourcePath != null) StringHelper.EncodeToUtf8(resourcePath, rpathBuffer);
+
+        fixed (byte* dataPtr = data)
+        fixed (byte* mimePtr = mimeBuffer)
+        fixed (byte* rpathPtr = rpathBuffer)
+        {
+            var result = NativeMethods.tvg_picture_load_data(Handle, (sbyte*)dataPtr, (uint)data.Length,
+                (sbyte*)mimePtr, (sbyte*)rpathPtr, (byte)(copy ? 1 : 0));
+            TvgResultHelper.CheckResult(result, "picture load data");
         }
     }
 

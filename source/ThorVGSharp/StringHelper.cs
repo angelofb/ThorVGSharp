@@ -8,24 +8,60 @@ namespace ThorVGSharp;
 /// </summary>
 internal static class StringHelper
 {
+    private const int StackAllocThreshold = 256;
+
     /// <summary>
-    /// Converts a managed string to a null-terminated UTF-8 sbyte* pointer.
+    /// Encodes a string to a null-terminated UTF-8 byte span on the stack (or heap for large strings)
+    /// and invokes the callback with the resulting pointer.
+    /// Zero-allocation for strings that fit within the stack threshold.
     /// </summary>
-    public static unsafe sbyte* ToNativeString(string? text, byte[] buffer)
+    public static unsafe void WithNativeString(string? text, delegate*<sbyte*, void> action)
     {
         if (string.IsNullOrEmpty(text))
-            return null;
-
-        var bytes = Encoding.UTF8.GetBytes(text + '\0');
-        if (bytes.Length > buffer.Length)
-            throw new ArgumentException("Buffer too small for string conversion");
-
-        fixed (byte* src = bytes)
-        fixed (byte* dest = buffer)
         {
-            Buffer.MemoryCopy(src, dest, buffer.Length, bytes.Length);
-            return (sbyte*)dest;
+            action(null);
+            return;
         }
+
+        int maxByteCount = Encoding.UTF8.GetMaxByteCount(text.Length) + 1; // +1 for null terminator
+
+        if (maxByteCount <= StackAllocThreshold)
+        {
+            byte* buffer = stackalloc byte[maxByteCount];
+            int written = Encoding.UTF8.GetBytes(text, new Span<byte>(buffer, maxByteCount - 1));
+            buffer[written] = 0; // null terminator
+            action((sbyte*)buffer);
+        }
+        else
+        {
+            byte[] rented = new byte[maxByteCount];
+            fixed (byte* buffer = rented)
+            {
+                int written = Encoding.UTF8.GetBytes(text, new Span<byte>(buffer, maxByteCount - 1));
+                buffer[written] = 0; // null terminator
+                action((sbyte*)buffer);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Encodes a string to null-terminated UTF-8 bytes, writing into the provided span.
+    /// Returns the number of bytes written (including null terminator).
+    /// The caller must ensure the span is large enough (use GetMaxByteCount + 1).
+    /// </summary>
+    public static int EncodeToUtf8(string text, Span<byte> destination)
+    {
+        int written = Encoding.UTF8.GetBytes(text.AsSpan(), destination);
+        destination[written] = 0; // null terminator
+        return written + 1;
+    }
+
+    /// <summary>
+    /// Returns the maximum number of bytes needed to encode a string as null-terminated UTF-8.
+    /// </summary>
+    public static int GetMaxByteCount(string text)
+    {
+        return Encoding.UTF8.GetMaxByteCount(text.Length) + 1; // +1 for null terminator
     }
 
     /// <summary>
