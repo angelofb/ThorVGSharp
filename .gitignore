@@ -481,3 +481,17 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# AI agents configuration and context files
+.claude/
+CLAUDE.md
+**/CLAUDE.md
+.cursorrules
+.cursor/
+.aider*
+.continue/
+.codeium/
+.cody/
+.tabby/
+.sourcegraph/
+copilot-*.md
