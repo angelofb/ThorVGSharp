@@ -65,7 +65,7 @@ jobs:
           -Dsavers=
           -Dthreads=true
           -Dsimd=true
-          -Dpartial=false
+          -Dpartial=true
           -Dfile=false
           -Dlog=false
           -Dextra="${{ matrix.extra }}"
