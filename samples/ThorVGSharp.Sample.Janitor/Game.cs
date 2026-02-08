@@ -680,6 +680,112 @@ internal class Explosion : IDisposable
     }
 }
 
+internal class ComboManager
+{
+    const float COMBO_TIME = 750f;
+
+    private class Combo
+    {
+        public TvgText Text { get; }
+        public float Time { get; set; }
+
+        public Combo(float scale)
+        {
+            Text = TvgText.Create();
+            Text.SetFont(Assets.FontName);
+            Text.SetSize(S(50, scale));
+            Text.SetColor(170, 255, 80);
+        }
+
+        public void Init(Vector2 pos, int counter, uint elapsed, TvgScene layer)
+        {
+            Text.SetText($"{counter}x combo!");
+            Text.Translate(pos.X, pos.Y);
+            layer.Add(Text);
+            Time = elapsed;
+        }
+
+        public bool Update(uint elapsed)
+        {
+            var progress = (elapsed - Time) / COMBO_TIME;
+            if (progress <= 1.0f)
+            {
+                Text.SetOpacity((byte)(255 - 255 * progress));
+                Text.Scale(1.0f + 0.2f * progress);
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private readonly TvgScene _layer;
+    private readonly List<Combo> _combos = new();
+    private readonly List<Combo> _recycle = new();
+    private readonly float _scale;
+    private int _type = -1;
+    private int _counter;
+
+    public ComboManager(TvgCanvas canvas, float scale)
+    {
+        _scale = scale;
+        _layer = TvgScene.Create();
+        canvas.Add(_layer);
+    }
+
+    public int Trigger(int type, Vector2 pos, uint elapsed)
+    {
+        if (_type == type)
+        {
+            _counter++;
+            Combo combo;
+            if (_recycle.Count == 0)
+            {
+                combo = new Combo(_scale);
+            }
+            else
+            {
+                combo = _recycle[^1];
+                _recycle.RemoveAt(_recycle.Count - 1);
+            }
+            combo.Init(pos, _counter, elapsed, _layer);
+            _combos.Add(combo);
+        }
+        else
+        {
+            _type = type;
+            _counter = 1;
+        }
+        return _counter;
+    }
+
+    public void Update(uint elapsed)
+    {
+        for (int i = _combos.Count - 1; i >= 0; i--)
+        {
+            if (_combos[i].Update(elapsed))
+            {
+                _layer.Remove(_combos[i].Text);
+                _recycle.Add(_combos[i]);
+                _combos.RemoveAt(i);
+            }
+        }
+    }
+
+    public void Reset()
+    {
+        _type = -1;
+    }
+
+    public void Dispose()
+    {
+        foreach (var combo in _combos)
+            combo.Text?.Dispose();
+        foreach (var combo in _recycle)
+            combo.Text?.Dispose();
+        _layer?.Dispose();
+    }
+}
+
 internal class ThorJanitorGame : IDisposable
 {
     const int LIFE_COUNT = 3;
@@ -693,8 +799,15 @@ internal class ThorJanitorGame : IDisposable
     private readonly TvgShape _clipper;
     private readonly List<Enemy> _enemies = new();
     private readonly List<Explosion> _explosions = new();
+    private readonly ComboManager _combo;
     private readonly float _scale;
     private readonly int _screenWidth, _screenHeight;
+
+    private readonly TvgText _fpsText;
+    private readonly TvgText _wipesText;
+    private readonly TvgText _levelText;
+    private readonly TvgScene[] _livesIcons = new TvgScene[LIFE_COUNT];
+    private readonly TvgShape _livesFlash;
 
     private int _level = 4;
     private int _wipeCount = 400;
@@ -704,6 +817,10 @@ internal class ThorJanitorGame : IDisposable
     private uint _totalElapsed;
     private int _lives = LIFE_COUNT;
     private bool _gameplay = true;
+    private bool _updatedWipes = true;
+    private uint _deadTime;
+    private uint _livesFlashTime;
+    private bool _livesFlashActive;
     private readonly Vector2 _origin;
 
     public ThorJanitorGame(TvgCanvas canvas, int width, int height, float scale)
@@ -716,6 +833,15 @@ internal class ThorJanitorGame : IDisposable
 
         Enemy.BoundRadius = S(80, scale);
         Enemy.Duration = (uint)(9500 - (_level * ENEMY_DURATION_LEVEL));
+
+        // Load font
+        TvgFontManager.LoadData(Assets.FontName, Assets.LoadFont(), "font/ttf");
+
+        // Load halo background image (skipped - requires ThorVG with JPG loader)
+        // var halo = TvgPicture.Create();
+        // var haloData = Assets.LoadHaloImage();
+        // halo.LoadData(haloData, "jpg");
+        // canvas.Add(halo);
 
         _zone = new WarZone(canvas, width, height, scale);
 
@@ -732,6 +858,85 @@ internal class ThorJanitorGame : IDisposable
         _enemyLayer = TvgScene.Create();
         _enemyLayer.SetClip(_clipper);
         canvas.Add(_enemyLayer);
+
+        _combo = new ComboManager(canvas, scale);
+
+        // Initialize lives flash overlay
+        _livesFlash = TvgShape.Create();
+        _livesFlash.AppendRect(0, 0, width, height);
+        _livesFlash.SetFillColor(255, 255, 170);
+        _livesFlash.SetOpacity(0);
+
+        // Initialize life icons (using simple shapes instead of SVG due to loader limitations)
+        var iconSize = S(150, scale);
+
+        for (int i = 0; i < LIFE_COUNT; i++)
+        {
+            var wrapper = TvgScene.Create();
+            wrapper.AddDropShadowEffect(170, 255, 80, 255, 0, 0, S(15, scale), 30);
+
+            // Create a simple heart-like shape as life icon
+            var heart = TvgShape.Create();
+            var centerX = iconSize / 2;
+            var centerY = iconSize / 2;
+            heart.AppendCircle(centerX - iconSize/6, centerY - iconSize/8, iconSize/4, iconSize/4);
+            heart.AppendCircle(centerX + iconSize/6, centerY - iconSize/8, iconSize/4, iconSize/4);
+
+            // Triangle for bottom of heart
+            ReadOnlySpan<TvgPathCommand> cmds = stackalloc TvgPathCommand[]
+            {
+                TvgPathCommand.MoveTo, TvgPathCommand.LineTo, TvgPathCommand.LineTo, TvgPathCommand.Close
+            };
+            ReadOnlySpan<TvgPoint> pts = stackalloc TvgPoint[]
+            {
+                new(centerX - iconSize/3, centerY - iconSize/12),
+                new(centerX, centerY + iconSize/2),
+                new(centerX + iconSize/3, centerY - iconSize/12)
+            };
+            heart.AppendPath(cmds, pts);
+            heart.SetFillColor(170, 255, 80);
+
+            wrapper.Add(heart);
+            wrapper.Translate(iconSize * i, height - iconSize);
+            canvas.Add(wrapper);
+
+            _livesIcons[i] = wrapper;
+        }
+
+        // Initialize GUI text - FPS
+        _fpsText = TvgText.Create();
+        _fpsText.SetFont(Assets.FontName);
+        _fpsText.SetSize(25);
+        _fpsText.SetText("FPS: 0");
+        _fpsText.Translate(10, 10);
+        _fpsText.SetColor(170, 255, 80);
+        _fpsText.Scale(scale);
+        canvas.Add(_fpsText);
+
+        // Initialize GUI text - Wipes (with drop shadow)
+        var wipesWrapper = TvgScene.Create();
+        wipesWrapper.AddDropShadowEffect(170, 255, 80, 255, 0, 0, S(20, scale), 30);
+        _wipesText = TvgText.Create();
+        _wipesText.SetFont(Assets.FontName);
+        _wipesText.SetSize(50);
+        _wipesText.SetText("0 Wipes");
+        _wipesText.SetColor(170, 255, 80);
+        _wipesText.Translate(width / 2f, 10);
+        _wipesText.Align(0.5f, 0.0f);
+        _wipesText.Scale(scale);
+        wipesWrapper.Add(_wipesText);
+        canvas.Add(wipesWrapper);
+
+        // Initialize GUI text - Level
+        _levelText = TvgText.Create();
+        _levelText.SetFont(Assets.FontName);
+        _levelText.SetSize(40);
+        _levelText.SetColor(170, 255, 80);
+        _levelText.Translate(width - S(20, scale), S(20, scale));
+        _levelText.Align(1.0f, 0.0f);
+        _levelText.Scale(scale);
+        _levelText.SetText($"Level {_level + 1}");
+        canvas.Add(_levelText);
     }
 
     public unsafe void Update(uint elapsedDelta, byte* keyboardState)
@@ -743,10 +948,31 @@ internal class ThorJanitorGame : IDisposable
             HandleInput(elapsedDelta, keyboardState);
             UpdateGameplay();
         }
+        else
+        {
+            // Player dead flash effect
+            if (_livesFlashActive)
+            {
+                var progress = (_totalElapsed - _livesFlashTime) / 50f;
+                if (progress > 1.0f)
+                {
+                    _canvas.Remove(_livesFlash);
+                    _livesFlashActive = false;
+                }
+                else
+                {
+                    _livesFlash.SetOpacity((byte)(255 * MathF.Sin(3.14f * progress)));
+                }
+            }
+            Reset();
+        }
 
         UpdateExplosions();
 
-        Respawn();
+        _combo.Update(_totalElapsed);
+
+        var shouldUpdateFPS = Respawn();
+        UpdateGUI(shouldUpdateFPS);
 
         _lastUpdate = _totalElapsed;
     }
@@ -793,6 +1019,14 @@ internal class ThorJanitorGame : IDisposable
         for (int i = _enemies.Count - 1; i >= 0; i--)
         {
             var enemy = _enemies[i];
+
+            // Check collision with player first
+            if (Intersect(_player.Position, enemy.CurrentPos + playerToOrigin, rangeSquared))
+            {
+                Dead();
+                break;
+            }
+
             var result = enemy.Update(_totalElapsed, _player.GetLauncher(), playerToOrigin, out var targetPos);
 
             if (result == 1) // Expired
@@ -802,15 +1036,12 @@ internal class ThorJanitorGame : IDisposable
             }
             else if (result == 2) // Hit by missile
             {
-                _wipeCount++;
+                _wipeCount += _combo.Trigger(enemy.Type, targetPos, _totalElapsed);
+                _updatedWipes = true;
                 CreateExplosion(enemy.CurrentPos, _player.Direction, enemy.GetColor());
                 _enemyLayer.Remove(enemy.Model);
                 _enemies.RemoveAt(i);
-            }
-            else if (Intersect(_player.Position, enemy.CurrentPos + playerToOrigin, rangeSquared))
-            {
-                // Player collision - game over logic
-                _gameplay = false;
+                UpdateGameLevel();
             }
         }
     }
@@ -836,10 +1067,10 @@ internal class ThorJanitorGame : IDisposable
         }
     }
 
-    private void Respawn()
+    private bool Respawn()
     {
         if (!_gameplay || _totalElapsed - _lastRespawn < _respawnTime)
-            return;
+            return false;
 
         _lastRespawn = _totalElapsed;
 
@@ -868,6 +1099,98 @@ internal class ThorJanitorGame : IDisposable
             enemy.Init(_enemyLayer, _screenWidth, _screenHeight, _totalElapsed);
             _enemies.Add(enemy);
         }
+
+        return true;
+    }
+
+    private void UpdateGUI(bool updateFPS)
+    {
+        // Update wipes count
+        if (_updatedWipes)
+        {
+            _wipesText.SetText($"{_wipeCount} Wipes");
+            _updatedWipes = false;
+        }
+
+        // Update FPS periodically (not every frame)
+        if (updateFPS)
+        {
+            _fpsText.SetText($"FPS: {_totalElapsed / 1000}"); // Placeholder - actual FPS would come from frame timing
+        }
+    }
+
+    private void UpdateGameLevel()
+    {
+        if (_level < 9 && _wipeCount / 100 > _level)
+        {
+            _level++;
+            _levelText.SetText($"Level {_level + 1}");
+            _respawnTime -= RESPAWN_LEVEL;
+            Enemy.Duration -= ENEMY_DURATION_LEVEL;
+        }
+    }
+
+    private void Dead()
+    {
+        _gameplay = false;
+
+        // Destroy all enemies
+        foreach (var enemy in _enemies)
+        {
+            CreateExplosion(enemy.CurrentPos, _player.Direction, enemy.GetColor());
+            _enemyLayer.Remove(enemy.Model);
+        }
+        _enemies.Clear();
+
+        // Decrement life after 1 second (only if enough time has passed since last life loss)
+        if (_lives > 0 && _totalElapsed - _livesFlashTime > 1000)
+        {
+            _lives--;
+            _canvas.Remove(_livesIcons[_lives]);
+            _livesFlashTime = _totalElapsed;
+            _livesFlashActive = true;
+            _canvas.Add(_livesFlash);
+        }
+
+        // Inactivate all missiles
+        foreach (var fire in _player.GetLauncher().Missiles)
+        {
+            fire.Inactivate();
+        }
+        _player.GetLauncher().Actives = 0;
+
+        _player.SetVisible(false);
+        _deadTime = _totalElapsed;
+    }
+
+    private void Reset()
+    {
+        var waitTime = _lives == 0 ? 3000u : 1000u;
+        if (_totalElapsed - _deadTime < waitTime)
+            return;
+
+        // Total reset if all lives exhausted
+        if (_lives == 0)
+        {
+            _level = 0;
+            _wipeCount = 0;
+            _updatedWipes = true;
+            _respawnTime = 1000;
+            Enemy.Duration = 10000;
+
+            _lives = LIFE_COUNT;
+            for (int i = 0; i < LIFE_COUNT; i++)
+            {
+                _canvas.Add(_livesIcons[i]);
+            }
+
+            _levelText.SetText($"Level {_level + 1}");
+        }
+
+        _player.SetVisible(true);
+        _gameplay = true;
+        _deadTime = _totalElapsed;
+        _combo.Reset();
     }
 
     public void Dispose()
@@ -879,6 +1202,21 @@ internal class ThorJanitorGame : IDisposable
 
         // Clear enemies (they don't implement IDisposable, shapes are owned by scene)
         _enemies.Clear();
+
+        // Dispose combo manager
+        _combo?.Dispose();
+
+        // Dispose GUI text elements
+        _fpsText?.Dispose();
+        _wipesText?.Dispose();
+        _levelText?.Dispose();
+
+        // Dispose life icons
+        foreach (var icon in _livesIcons)
+            icon?.Dispose();
+
+        // Dispose lives flash
+        _livesFlash?.Dispose();
 
         // Dispose scene and shapes in proper order
         // Note: Don't dispose individual shapes/scenes as they're owned by the canvas
