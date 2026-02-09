@@ -1,0 +1,437 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ============================================================
+    // BUILD TASKS
+    // ============================================================
+    {
+      "label": "Build Library (Debug)",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "source/ThorVGSharp/ThorVGSharp.csproj",
+        "-c",
+        "Debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Library (Release)",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "source/ThorVGSharp/ThorVGSharp.csproj",
+        "-c",
+        "Release"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Solution",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "ThorVGSharp.slnx",
+        "-c",
+        "Debug"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Solution (Release)",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "ThorVGSharp.slnx",
+        "-c",
+        "Release"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Tests",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "tests/ThorVGSharp.Tests/ThorVGSharp.Tests.csproj",
+        "-c",
+        "Debug"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Janitor Sample",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "samples/ThorVGSharp.Sample.Janitor/ThorVGSharp.Sample.Janitor.csproj",
+        "-c",
+        "Debug"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build WPF Sample",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "if [ \"$(uname)\" = \"Darwin\" ] || [ \"$(uname)\" = \"Linux\" ]; then echo 'WPF sample is Windows-only and cannot be built on this platform'; exit 0; else dotnet build samples/ThorVGSharp.Sample.Wpf/ThorVGSharp.Sample.Wpf.csproj -c Debug; fi"
+      ],
+      "windows": {
+        "command": "dotnet",
+        "args": [
+          "build",
+          "samples/ThorVGSharp.Sample.Wpf/ThorVGSharp.Sample.Wpf.csproj",
+          "-c",
+          "Debug"
+        ]
+      },
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Build Benchmarks",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "benchs/ThorVGSharp.Benchmarks/ThorVGSharp.Benchmarks.csproj",
+        "-c",
+        "Release"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+
+    // ============================================================
+    // TEST TASKS
+    // ============================================================
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/ThorVGSharp.Tests/ThorVGSharp.Tests.csproj",
+        "-c",
+        "Debug",
+        "--no-build"
+      ],
+      "group": "test",
+      "dependsOn": ["Build Library (Debug)"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Run Tests (with Coverage)",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "tests/ThorVGSharp.Tests/ThorVGSharp.Tests.csproj",
+        "-c",
+        "Debug",
+        "/p:CollectCoverage=true",
+        "/p:CoverletOutputFormat=cobertura%2copencover%2cjson",
+        "/p:CoverletOutput=./coverage/"
+      ],
+      "group": "test",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+
+    // ============================================================
+    // SAMPLE TASKS
+    // ============================================================
+    {
+      "label": "Run Janitor Sample",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "samples/ThorVGSharp.Sample.Janitor/ThorVGSharp.Sample.Janitor.csproj",
+        "-c",
+        "Debug",
+        "--no-build"
+      ],
+      "dependsOn": ["Build Janitor Sample"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Run WPF Sample",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "if [ \"$(uname)\" = \"Darwin\" ] || [ \"$(uname)\" = \"Linux\" ]; then echo 'WPF sample is Windows-only and cannot run on this platform'; exit 0; else dotnet run --project samples/ThorVGSharp.Sample.Wpf/ThorVGSharp.Sample.Wpf.csproj -c Debug --no-build; fi"
+      ],
+      "windows": {
+        "command": "dotnet",
+        "args": [
+          "run",
+          "--project",
+          "samples/ThorVGSharp.Sample.Wpf/ThorVGSharp.Sample.Wpf.csproj",
+          "-c",
+          "Debug",
+          "--no-build"
+        ]
+      },
+      "dependsOn": ["Build WPF Sample"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+
+    // ============================================================
+    // BENCHMARK TASKS
+    // ============================================================
+    {
+      "label": "Run Benchmarks",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "benchs/ThorVGSharp.Benchmarks/ThorVGSharp.Benchmarks.csproj",
+        "-c",
+        "Release",
+        "--no-build"
+      ],
+      "dependsOn": ["Build Benchmarks"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+
+    // ============================================================
+    // BUILD SYSTEM TASKS
+    // ============================================================
+    {
+      "label": "Generate Bindings (Cake)",
+      "type": "shell",
+      "command": "./build.sh",
+      "args": ["bindings"],
+      "windows": {
+        "command": ".\\build.ps1",
+        "args": ["bindings"]
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+
+    // ============================================================
+    // CLEANUP TASKS
+    // ============================================================
+    {
+      "label": "Clean Solution",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "clean",
+        "ThorVGSharp.slnx"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Clean Library",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "clean",
+        "source/ThorVGSharp/ThorVGSharp.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Clean All (Deep)",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "find . -type d \\( -name bin -o -name obj -o -name coverage -o -name artifacts \\) -exec rm -rf {} + 2>/dev/null || true; echo 'Deep clean complete'"
+      ],
+      "windows": {
+        "command": "powershell",
+        "args": [
+          "-Command",
+          "Get-ChildItem -Path . -Include bin,obj,coverage,artifacts -Recurse -Directory | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Deep clean complete'"
+        ]
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+
+    // ============================================================
+    // PACKAGE TASKS
+    // ============================================================
+    {
+      "label": "Pack NuGet Package",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "pack",
+        "source/ThorVGSharp/ThorVGSharp.csproj",
+        "-c",
+        "Release",
+        "--no-build",
+        "-o",
+        "artifacts"
+      ],
+      "dependsOn": ["Build Library (Release)"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Pack NuGet Package (No Build)",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "pack",
+        "source/ThorVGSharp/ThorVGSharp.csproj",
+        "-c",
+        "Release",
+        "--no-build",
+        "-o",
+        "artifacts"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+
+    // ============================================================
+    // RESTORE TASKS
+    // ============================================================
+    {
+      "label": "Restore Solution",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "restore",
+        "ThorVGSharp.slnx"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
+      "label": "Restore Tools",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "tool",
+        "restore"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    }
+  ]
+}
