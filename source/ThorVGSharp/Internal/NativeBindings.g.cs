@@ -27,7 +27,8 @@ namespace ThorVGSharp.Interop
     {
     }
 
-    internal enum Tvg_Result
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Result : uint
     {
         TVG_RESULT_SUCCESS = 0,
         TVG_RESULT_INVALID_ARGUMENT,
@@ -38,7 +39,8 @@ namespace ThorVGSharp.Interop
         TVG_RESULT_UNKNOWN = 255,
     }
 
-    internal enum Tvg_Colorspace
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Colorspace : uint
     {
         TVG_COLORSPACE_ABGR8888 = 0,
         TVG_COLORSPACE_ARGB8888,
@@ -47,14 +49,16 @@ namespace ThorVGSharp.Interop
         TVG_COLORSPACE_UNKNOWN = 255,
     }
 
-    internal enum Tvg_Engine_Option
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Engine_Option : uint
     {
         TVG_ENGINE_OPTION_NONE = 0,
         TVG_ENGINE_OPTION_DEFAULT = 1 << 0,
         TVG_ENGINE_OPTION_SMART_RENDER = 1 << 1,
     }
 
-    internal enum Tvg_Mask_Method
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Mask_Method : uint
     {
         TVG_MASK_METHOD_NONE = 0,
         TVG_MASK_METHOD_ALPHA,
@@ -69,7 +73,8 @@ namespace ThorVGSharp.Interop
         TVG_MASK_METHOD_DARKEN,
     }
 
-    internal enum Tvg_Blend_Method
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Blend_Method : uint
     {
         TVG_BLEND_METHOD_NORMAL = 0,
         TVG_BLEND_METHOD_MULTIPLY,
@@ -91,7 +96,8 @@ namespace ThorVGSharp.Interop
         TVG_BLEND_METHOD_COMPOSITION = 255,
     }
 
-    internal enum Tvg_Type
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Type : uint
     {
         TVG_TYPE_UNDEF = 0,
         TVG_TYPE_SHAPE,
@@ -102,34 +108,39 @@ namespace ThorVGSharp.Interop
         TVG_TYPE_RADIAL_GRAD,
     }
 
-    internal enum Tvg_Stroke_Cap
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Stroke_Cap : uint
     {
         TVG_STROKE_CAP_BUTT = 0,
         TVG_STROKE_CAP_ROUND,
         TVG_STROKE_CAP_SQUARE,
     }
 
-    internal enum Tvg_Stroke_Join
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Stroke_Join : uint
     {
         TVG_STROKE_JOIN_MITER = 0,
         TVG_STROKE_JOIN_ROUND,
         TVG_STROKE_JOIN_BEVEL,
     }
 
-    internal enum Tvg_Stroke_Fill
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Stroke_Fill : uint
     {
         TVG_STROKE_FILL_PAD = 0,
         TVG_STROKE_FILL_REFLECT,
         TVG_STROKE_FILL_REPEAT,
     }
 
-    internal enum Tvg_Fill_Rule
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Fill_Rule : uint
     {
         TVG_FILL_RULE_NON_ZERO = 0,
         TVG_FILL_RULE_EVEN_ODD,
     }
 
-    internal enum Tvg_Text_Wrap
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Text_Wrap : uint
     {
         TVG_TEXT_WRAP_NONE = 0,
         TVG_TEXT_WRAP_CHARACTER,
@@ -139,12 +150,43 @@ namespace ThorVGSharp.Interop
         TVG_TEXT_WRAP_HYPHENATION,
     }
 
+    [NativeTypeName("unsigned int")]
+    internal enum Tvg_Filter_Method : uint
+    {
+        TVG_FILTER_METHOD_BILINEAR = 0,
+        TVG_FILTER_METHOD_NEAREST,
+    }
+
+    internal partial struct Tvg_Text_Metrics
+    {
+        public float ascent;
+
+        public float descent;
+
+        public float linegap;
+
+        public float advance;
+    }
+
+    internal partial struct Tvg_Glyph_Metrics
+    {
+        public float advance;
+
+        public float bearing;
+
+        [NativeTypeName("Tvg_Point")]
+        public TvgPoint min;
+
+        [NativeTypeName("Tvg_Point")]
+        public TvgPoint max;
+    }
+
     internal static unsafe partial class NativeMethods
     {
-        internal const int TVG_PATH_COMMAND_CLOSE = 0;
-        internal const int TVG_PATH_COMMAND_MOVE_TO = 1;
-        internal const int TVG_PATH_COMMAND_LINE_TO = 2;
-        internal const int TVG_PATH_COMMAND_CUBIC_TO = 3;
+        internal const uint TVG_PATH_COMMAND_CLOSE = 0;
+        internal const uint TVG_PATH_COMMAND_MOVE_TO = 1;
+        internal const uint TVG_PATH_COMMAND_LINE_TO = 2;
+        internal const uint TVG_PATH_COMMAND_CUBIC_TO = 3;
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_engine_init([NativeTypeName("unsigned int")] uint threads);
@@ -221,6 +263,13 @@ namespace ThorVGSharp.Interop
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("bool")]
         public static extern byte tvg_paint_get_visible([NativeTypeName("const Tvg_Paint")] _Tvg_Paint* paint);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        [return: NativeTypeName("uint32_t")]
+        public static extern uint tvg_paint_get_id([NativeTypeName("const Tvg_Paint")] _Tvg_Paint* paint);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern Tvg_Result tvg_paint_set_id([NativeTypeName("Tvg_Paint")] _Tvg_Paint* paint, [NativeTypeName("uint32_t")] uint id);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_paint_scale([NativeTypeName("Tvg_Paint")] _Tvg_Paint* paint, float factor);
@@ -458,6 +507,9 @@ namespace ThorVGSharp.Interop
         public static extern _Tvg_Paint* tvg_picture_get_paint([NativeTypeName("Tvg_Paint")] _Tvg_Paint* picture, [NativeTypeName("uint32_t")] uint id);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern Tvg_Result tvg_picture_set_filter([NativeTypeName("Tvg_Paint")] _Tvg_Paint* picture, Tvg_Filter_Method method);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         [return: NativeTypeName("Tvg_Paint")]
         public static extern _Tvg_Paint* tvg_scene_new();
 
@@ -502,6 +554,10 @@ namespace ThorVGSharp.Interop
         public static extern Tvg_Result tvg_text_set_text([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text, [NativeTypeName("const char *")] sbyte* utf8);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        [return: NativeTypeName("const char *")]
+        public static extern sbyte* tvg_text_get_text([NativeTypeName("const Tvg_Paint")] _Tvg_Paint* text);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_text_align([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text, float x, float y);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -509,6 +565,10 @@ namespace ThorVGSharp.Interop
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_text_wrap_mode([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text, Tvg_Text_Wrap mode);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        [return: NativeTypeName("uint32_t")]
+        public static extern uint tvg_text_line_count([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_text_spacing([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text, float letter, float line);
@@ -524,6 +584,12 @@ namespace ThorVGSharp.Interop
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_text_set_gradient([NativeTypeName("Tvg_Paint")] _Tvg_Paint* text, [NativeTypeName("Tvg_Gradient")] _Tvg_Gradient* gradient);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern Tvg_Result tvg_text_get_text_metrics([NativeTypeName("const Tvg_Paint")] _Tvg_Paint* text, Tvg_Text_Metrics* metrics);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern Tvg_Result tvg_text_get_glyph_metrics([NativeTypeName("const Tvg_Paint")] _Tvg_Paint* text, [NativeTypeName("const char *")] sbyte* ch, Tvg_Glyph_Metrics* metrics);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_font_load([NativeTypeName("const char *")] sbyte* path);
@@ -617,6 +683,9 @@ namespace ThorVGSharp.Interop
         public static extern Tvg_Result tvg_lottie_animation_get_marker([NativeTypeName("Tvg_Animation")] _Tvg_Animation* animation, [NativeTypeName("uint32_t")] uint idx, [NativeTypeName("const char **")] sbyte** name);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+        public static extern Tvg_Result tvg_lottie_animation_get_marker_info([NativeTypeName("Tvg_Animation")] _Tvg_Animation* animation, [NativeTypeName("uint32_t")] uint idx, [NativeTypeName("const char **")] sbyte** name, float* begin, float* end);
+
+        [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern Tvg_Result tvg_lottie_animation_tween([NativeTypeName("Tvg_Animation")] _Tvg_Animation* animation, float from, float to, float progress);
 
         [DllImport("thorvg", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -631,7 +700,7 @@ namespace ThorVGSharp.Interop
         [NativeTypeName("#define TVG_VERSION_MINOR 0")]
         public const int TVG_VERSION_MINOR = 0;
 
-        [NativeTypeName("#define TVG_VERSION_MICRO 0")]
-        public const int TVG_VERSION_MICRO = 0;
+        [NativeTypeName("#define TVG_VERSION_MICRO 3")]
+        public const int TVG_VERSION_MICRO = 3;
     }
 }
