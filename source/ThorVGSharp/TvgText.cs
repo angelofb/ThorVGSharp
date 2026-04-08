@@ -70,6 +70,15 @@ public sealed class TvgText : TvgPaint
     }
 
     /// <summary>
+    /// Gets the current line count of the laid out text.
+    /// </summary>
+    /// <returns>The number of lines currently produced by text layout.</returns>
+    public unsafe uint GetLineCount()
+    {
+        return NativeMethods.tvg_text_line_count(Handle);
+    }
+
+    /// <summary>
     /// Aligns the text at the specified position.
     /// </summary>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
