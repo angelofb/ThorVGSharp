@@ -99,4 +99,22 @@ public class TvgSceneTests : IDisposable
         scene.Add(shape2);
         scene.Add(picture);
     }
+
+    [Fact]
+    public void EffectApis_AreCallable()
+    {
+        using var scene = TvgScene.Create();
+        using var shape = TvgShape.Create();
+
+        shape.AppendRect(0, 0, 100, 100);
+        shape.SetFillColor(255, 0, 0, 255);
+        scene.Add(shape);
+
+        TestApiAssert.AllowsTvgException(() => scene.AddGaussianBlurEffect(3.0));
+        TestApiAssert.AllowsTvgException(() => scene.AddDropShadowEffect(0, 0, 0, 180, 45.0, 8.0, 4.0));
+        TestApiAssert.AllowsTvgException(() => scene.AddFillEffect(10, 20, 30, 220));
+        TestApiAssert.AllowsTvgException(() => scene.AddTintEffect(0, 0, 0, 255, 255, 255, 0.5));
+        TestApiAssert.AllowsTvgException(() => scene.AddTritoneEffect(10, 10, 10, 120, 120, 120, 240, 240, 240));
+        TestApiAssert.AllowsTvgException(() => scene.ClearEffects());
+    }
 }

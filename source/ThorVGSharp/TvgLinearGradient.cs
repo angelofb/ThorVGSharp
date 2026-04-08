@@ -7,7 +7,7 @@ namespace ThorVGSharp;
 /// </summary>
 public sealed class TvgLinearGradient : TvgFill
 {
-    internal unsafe TvgLinearGradient(_Tvg_Gradient* handle) : base(handle) { }
+    internal unsafe TvgLinearGradient(_Tvg_Gradient* handle, bool ownsHandle = true) : base(handle, ownsHandle) { }
 
     /// <summary>
     /// Creates a new linear gradient.

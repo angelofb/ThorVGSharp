@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Launch Janitor Sample",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Janitor Sample",
+      "program": "${workspaceFolder}/samples/ThorVGSharp.Sample.Janitor/bin/Debug/net10.0/ThorVGSharp.Sample.Janitor.dll",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": ".NET Launch Showcase Sample",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Showcase Sample",
+      "program": "${workspaceFolder}/samples/ThorVGSharp.Sample.Showcase/bin/Debug/net10.0/ThorVGSharp.Sample.Showcase.dll",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ]
+}

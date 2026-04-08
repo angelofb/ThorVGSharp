@@ -61,6 +61,64 @@ public sealed class TvgText : TvgPaint
     }
 
     /// <summary>
+    /// Gets the current text content (UTF-8).
+    /// </summary>
+    /// <returns>The current text, or null if no text is set.</returns>
+    public unsafe string? GetText()
+    {
+        return StringHelper.FromNativeString(NativeMethods.tvg_text_get_text(Handle));
+    }
+
+    /// <summary>
+    /// Gets the current line count of the laid out text.
+    /// </summary>
+    /// <returns>The number of lines currently produced by text layout.</returns>
+    public unsafe uint GetLineCount()
+    {
+        return NativeMethods.tvg_text_line_count(Handle);
+    }
+
+    /// <summary>
+    /// Gets the current text metrics.
+    /// </summary>
+    /// <returns>The metrics for the full text layout.</returns>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe TvgTextMetrics GetTextMetrics()
+    {
+        Tvg_Text_Metrics metrics;
+        var result = NativeMethods.tvg_text_get_text_metrics(Handle, &metrics);
+        TvgResultHelper.CheckResult(result, "text get text metrics");
+
+        return new TvgTextMetrics(metrics.ascent, metrics.descent, metrics.linegap, metrics.advance);
+    }
+
+    /// <summary>
+    /// Gets the metrics for a specific glyph.
+    /// </summary>
+    /// <param name="glyph">The glyph text (UTF-8) to query.</param>
+    /// <returns>The metrics for the specified glyph.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="glyph"/> is null or empty.</exception>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe TvgGlyphMetrics GetGlyphMetrics(string glyph)
+    {
+        if (string.IsNullOrEmpty(glyph))
+            throw new ArgumentException("Glyph cannot be null or empty.", nameof(glyph));
+
+        int maxBytes = StringHelper.GetMaxByteCount(glyph);
+        Span<byte> buffer = maxBytes <= 256 ? stackalloc byte[maxBytes] : new byte[maxBytes];
+        StringHelper.EncodeToUtf8(glyph, buffer);
+
+        Tvg_Glyph_Metrics metrics;
+        fixed (byte* glyphPtr = buffer)
+        {
+            var result = NativeMethods.tvg_text_get_glyph_metrics(Handle, (sbyte*)glyphPtr, &metrics);
+            TvgResultHelper.CheckResult(result, "text get glyph metrics");
+        }
+
+        return new TvgGlyphMetrics(metrics.advance, metrics.bearing, metrics.min, metrics.max);
+    }
+
+    /// <summary>
     /// Aligns the text at the specified position.
     /// </summary>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>

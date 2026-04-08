@@ -116,6 +116,24 @@
       }
     },
     {
+      "label": "Build Showcase Sample",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "samples/ThorVGSharp.Sample.Showcase/ThorVGSharp.Sample.Showcase.csproj",
+        "-c",
+        "Debug"
+      ],
+      "group": "build",
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": false
+      }
+    },
+    {
       "label": "Build WPF Sample",
       "type": "shell",
       "command": "bash",
@@ -220,6 +238,26 @@
         "--no-build"
       ],
       "dependsOn": ["Build Janitor Sample"],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "Run Showcase Sample",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "samples/ThorVGSharp.Sample.Showcase/ThorVGSharp.Sample.Showcase.csproj",
+        "-c",
+        "Debug",
+        "--no-build"
+      ],
+      "dependsOn": ["Build Showcase Sample"],
       "problemMatcher": "$msCompile",
       "presentation": {
         "reveal": "always",

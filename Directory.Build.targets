@@ -1,0 +1,29 @@
+<Project>
+  <Target
+    Name="ThorVGRemoveMacQuarantineFromRuntime"
+    BeforeTargets="Build"
+    Condition="'$([MSBuild]::IsOSPlatform(OSX))' == 'true'">
+    <PropertyGroup>
+      <ThorVGRuntimeDylib>$(MSBuildThisFileDirectory)runtimes/osx-arm64/native/libthorvg.dylib</ThorVGRuntimeDylib>
+    </PropertyGroup>
+
+    <Exec
+      Condition="Exists('$(ThorVGRuntimeDylib)')"
+      Command="xattr -d com.apple.quarantine &quot;$(ThorVGRuntimeDylib)&quot; 2&gt;/dev/null || true"
+      IgnoreExitCode="true" />
+  </Target>
+
+  <Target
+    Name="ThorVGRemoveMacQuarantineFromOutput"
+    AfterTargets="Build"
+    Condition="'$([MSBuild]::IsOSPlatform(OSX))' == 'true'">
+    <PropertyGroup>
+      <ThorVGOutputDylib>$(OutDir)libthorvg.dylib</ThorVGOutputDylib>
+    </PropertyGroup>
+
+    <Exec
+      Condition="Exists('$(ThorVGOutputDylib)')"
+      Command="xattr -d com.apple.quarantine &quot;$(ThorVGOutputDylib)&quot; 2&gt;/dev/null || true"
+      IgnoreExitCode="true" />
+  </Target>
+</Project>

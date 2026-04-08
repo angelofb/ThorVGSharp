@@ -1,0 +1,42 @@
+name: Run Tests
+run-name: ${{ github.event_name == 'pull_request' && format('Tests - PR {0} - {1}', github.event.pull_request.number, github.head_ref) || format('Tests - Manual - {0}', github.ref_name) }}
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run tests with coverage
+        run: >
+          dotnet test tests/ThorVGSharp.Tests/ThorVGSharp.Tests.csproj
+          -c Debug
+          -v minimal
+          /p:CollectCoverage=true
+          /p:CoverletOutputFormat=cobertura%2copencover%2cjson
+          /p:CoverletOutput=./coverage/
+          '/p:Threshold="70,60"'
+          '/p:ThresholdType="line,branch"'
+          /p:ThresholdStat=total
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-coverage
+          path: tests/ThorVGSharp.Tests/coverage/
+          if-no-files-found: warn

@@ -65,6 +65,26 @@ public abstract class TvgPaint : IDisposable
     }
 
     /// <summary>
+    /// Sets the paint identifier.
+    /// </summary>
+    /// <param name="id">The identifier value to assign.</param>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void SetId(uint id)
+    {
+        var result = NativeMethods.tvg_paint_set_id(Handle, id);
+        TvgResultHelper.CheckResult(result, "set paint id");
+    }
+
+    /// <summary>
+    /// Gets the paint identifier.
+    /// </summary>
+    /// <returns>The identifier value associated with this paint.</returns>
+    public unsafe uint GetId()
+    {
+        return NativeMethods.tvg_paint_get_id(Handle);
+    }
+
+    /// <summary>
     /// Sets the opacity of the paint.
     /// </summary>
     /// <param name="opacity">The opacity value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque.</param>
@@ -169,7 +189,13 @@ public abstract class TvgPaint : IDisposable
     {
         ArgumentNullException.ThrowIfNull(target);
 
+        // Retain a managed ownership reference while native paint keeps the mask target.
+        NativeMethods.tvg_paint_ref(target.Handle);
+
         var result = NativeMethods.tvg_paint_set_mask_method(Handle, target.Handle, (Tvg_Mask_Method)method);
+        if (result != Tvg_Result.TVG_RESULT_SUCCESS)
+            NativeMethods.tvg_paint_unref(target.Handle, 0);
+
         TvgResultHelper.CheckResult(result, "paint set mask method");
     }
 
@@ -212,7 +238,8 @@ public abstract class TvgPaint : IDisposable
     public unsafe (float x, float y, float width, float height) GetBounds()
     {
         float x, y, w, h;
-        NativeMethods.tvg_paint_get_aabb(Handle, &x, &y, &w, &h);
+        var result = NativeMethods.tvg_paint_get_aabb(Handle, &x, &y, &w, &h);
+        TvgResultHelper.CheckResult(result, "paint get aabb");
         return (x, y, w, h);
     }
 
@@ -230,10 +257,7 @@ public abstract class TvgPaint : IDisposable
             return [];
 
         var output = new TvgPoint[4];
-        for (int i = 0; i < 4; i++)
-        {
-            output[i] = points[i];
-        }
+        new ReadOnlySpan<TvgPoint>(points, 4).CopyTo(output);
         return output;
     }
 
@@ -244,7 +268,7 @@ public abstract class TvgPaint : IDisposable
     public unsafe TvgPaint? GetParent()
     {
         _Tvg_Paint* parent = NativeMethods.tvg_paint_get_parent(Handle);
-        return CreatePaintWrapper(parent);
+        return CreatePaintWrapper(parent, addRef: true);
     }
 
     /// <summary>
@@ -260,7 +284,13 @@ public abstract class TvgPaint : IDisposable
     {
         ArgumentNullException.ThrowIfNull(clipper);
 
+        // Retain a managed ownership reference while native paint keeps the clipper.
+        NativeMethods.tvg_paint_ref(clipper.Handle);
+
         var result = NativeMethods.tvg_paint_set_clip(Handle, clipper.Handle);
+        if (result != Tvg_Result.TVG_RESULT_SUCCESS)
+            NativeMethods.tvg_paint_unref(clipper.Handle, 0);
+
         TvgResultHelper.CheckResult(result, "paint set clip");
     }
 
@@ -271,7 +301,7 @@ public abstract class TvgPaint : IDisposable
     public unsafe TvgPaint? GetClip()
     {
         _Tvg_Paint* clip = NativeMethods.tvg_paint_get_clip(Handle);
-        return CreatePaintWrapper(clip);
+        return CreatePaintWrapper(clip, addRef: true);
     }
 
     /// <summary>
@@ -316,14 +346,17 @@ public abstract class TvgPaint : IDisposable
     /// <summary>
     /// Creates a wrapper for a paint handle based on its type.
     /// </summary>
-    internal static unsafe TvgPaint? CreatePaintWrapper(_Tvg_Paint* handle)
+    internal static unsafe TvgPaint? CreatePaintWrapper(_Tvg_Paint* handle, bool addRef = false)
     {
         if (handle == null)
             return null;
 
+        if (addRef)
+            NativeMethods.tvg_paint_ref(handle);
+
         Tvg_Type type;
         NativeMethods.tvg_paint_get_type(handle, &type);
-        return type switch
+        TvgPaint? paint = type switch
         {
             Tvg_Type.TVG_TYPE_SHAPE => new TvgShape(handle),
             Tvg_Type.TVG_TYPE_SCENE => new TvgScene(handle),
@@ -331,6 +364,12 @@ public abstract class TvgPaint : IDisposable
             Tvg_Type.TVG_TYPE_TEXT => new TvgText(handle),
             _ => null
         };
+
+        // Undo the retained reference if we couldn't materialize a managed wrapper.
+        if (paint == null && addRef)
+            NativeMethods.tvg_paint_unref(handle, 0);
+
+        return paint;
     }
 
     /// <summary>

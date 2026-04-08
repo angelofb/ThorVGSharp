@@ -8,6 +8,7 @@ namespace ThorVGSharp;
 public abstract class TvgFill : IDisposable
 {
     private bool _disposed;
+    private bool _ownsHandle;
 
     /// <summary>
     /// Gets the native handle to the gradient object.
@@ -17,9 +18,15 @@ public abstract class TvgFill : IDisposable
     /// <summary>
     /// Initializes a new instance of the Fill class with the specified native handle.
     /// </summary>
-    internal unsafe TvgFill(_Tvg_Gradient* handle)
+    internal unsafe TvgFill(_Tvg_Gradient* handle, bool ownsHandle = true)
     {
         Handle = handle;
+        _ownsHandle = ownsHandle;
+    }
+
+    internal void RelinquishOwnership()
+    {
+        _ownsHandle = false;
     }
 
     /// <summary>
@@ -77,8 +84,7 @@ public abstract class TvgFill : IDisposable
             return [];
 
         TvgColorStop[] stops = new TvgColorStop[count];
-        for (int i = 0; i < count; i++)
-            stops[i] = stopsPtr[i];
+        new ReadOnlySpan<TvgColorStop>(stopsPtr, checked((int)count)).CopyTo(stops);
 
         return stops;
     }
@@ -133,13 +139,13 @@ public abstract class TvgFill : IDisposable
     public unsafe TvgFill? Duplicate()
     {
         _Tvg_Gradient* duplicate = NativeMethods.tvg_gradient_duplicate(Handle);
-        return CreateFromHandle(duplicate);
+        return CreateFromHandle(duplicate, ownsHandle: true);
     }
 
     /// <summary>
     /// Creates a Fill wrapper from a native handle based on its type.
     /// </summary>
-    internal static unsafe TvgFill? CreateFromHandle(_Tvg_Gradient* handle)
+    internal static unsafe TvgFill? CreateFromHandle(_Tvg_Gradient* handle, bool ownsHandle = true)
     {
         if (handle == null)
             return null;
@@ -148,8 +154,8 @@ public abstract class TvgFill : IDisposable
         NativeMethods.tvg_gradient_get_type(handle, &type);
         return type switch
         {
-            Tvg_Type.TVG_TYPE_LINEAR_GRAD => new TvgLinearGradient(handle),
-            Tvg_Type.TVG_TYPE_RADIAL_GRAD => new TvgRadialGradient(handle),
+            Tvg_Type.TVG_TYPE_LINEAR_GRAD => new TvgLinearGradient(handle, ownsHandle),
+            Tvg_Type.TVG_TYPE_RADIAL_GRAD => new TvgRadialGradient(handle, ownsHandle),
             _ => null
         };
     }
@@ -163,7 +169,8 @@ public abstract class TvgFill : IDisposable
         {
             if (Handle != null)
             {
-                NativeMethods.tvg_gradient_del(Handle);
+                if (_ownsHandle)
+                    NativeMethods.tvg_gradient_del(Handle);
                 Handle = null;
             }
             _disposed = true;
