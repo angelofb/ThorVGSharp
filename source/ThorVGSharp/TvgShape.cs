@@ -198,6 +198,9 @@ public sealed class TvgShape : TvgPaint
     {
         var result = NativeMethods.tvg_shape_set_gradient(Handle, gradient != null ? gradient.Handle : null);
         TvgResultHelper.CheckResult(result, "shape set fill gradient");
+
+        // Native shape takes ownership of the gradient handle on success.
+        gradient?.RelinquishOwnership();
     }
 
     /// <summary>
@@ -272,6 +275,9 @@ public sealed class TvgShape : TvgPaint
     {
         var result = NativeMethods.tvg_shape_set_stroke_gradient(Handle, gradient != null ? gradient.Handle : null);
         TvgResultHelper.CheckResult(result, "shape set stroke gradient");
+
+        // Native shape takes ownership of the gradient handle on success.
+        gradient?.RelinquishOwnership();
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace ThorVGSharp;
 public abstract class TvgFill : IDisposable
 {
     private bool _disposed;
-    private readonly bool _ownsHandle;
+    private bool _ownsHandle;
 
     /// <summary>
     /// Gets the native handle to the gradient object.
@@ -22,6 +22,11 @@ public abstract class TvgFill : IDisposable
     {
         Handle = handle;
         _ownsHandle = ownsHandle;
+    }
+
+    internal void RelinquishOwnership()
+    {
+        _ownsHandle = false;
     }
 
     /// <summary>

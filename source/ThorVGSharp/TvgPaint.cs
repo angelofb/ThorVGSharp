@@ -189,7 +189,13 @@ public abstract class TvgPaint : IDisposable
     {
         ArgumentNullException.ThrowIfNull(target);
 
+        // Retain a managed ownership reference while native paint keeps the mask target.
+        NativeMethods.tvg_paint_ref(target.Handle);
+
         var result = NativeMethods.tvg_paint_set_mask_method(Handle, target.Handle, (Tvg_Mask_Method)method);
+        if (result != Tvg_Result.TVG_RESULT_SUCCESS)
+            NativeMethods.tvg_paint_unref(target.Handle, 0);
+
         TvgResultHelper.CheckResult(result, "paint set mask method");
     }
 
@@ -232,7 +238,8 @@ public abstract class TvgPaint : IDisposable
     public unsafe (float x, float y, float width, float height) GetBounds()
     {
         float x, y, w, h;
-        NativeMethods.tvg_paint_get_aabb(Handle, &x, &y, &w, &h);
+        var result = NativeMethods.tvg_paint_get_aabb(Handle, &x, &y, &w, &h);
+        TvgResultHelper.CheckResult(result, "paint get aabb");
         return (x, y, w, h);
     }
 
@@ -277,7 +284,13 @@ public abstract class TvgPaint : IDisposable
     {
         ArgumentNullException.ThrowIfNull(clipper);
 
+        // Retain a managed ownership reference while native paint keeps the clipper.
+        NativeMethods.tvg_paint_ref(clipper.Handle);
+
         var result = NativeMethods.tvg_paint_set_clip(Handle, clipper.Handle);
+        if (result != Tvg_Result.TVG_RESULT_SUCCESS)
+            NativeMethods.tvg_paint_unref(clipper.Handle, 0);
+
         TvgResultHelper.CheckResult(result, "paint set clip");
     }
 
