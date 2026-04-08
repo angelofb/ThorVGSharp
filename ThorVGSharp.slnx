@@ -7,6 +7,8 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/ThorVGSharp.Sample.Common/ThorVGSharp.Sample.Common.csproj" />
+    <Project Path="samples/ThorVGSharp.Sample.Janitor/ThorVGSharp.Sample.Janitor.csproj" />
+    <Project Path="samples/ThorVGSharp.Sample.Showcase/ThorVGSharp.Sample.Showcase.csproj" />
   </Folder>
   <Folder Name="/source/">
     <Project Path="source/ThorVGSharp/ThorVGSharp.csproj" />
