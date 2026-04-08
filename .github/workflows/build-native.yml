@@ -58,6 +58,7 @@ jobs:
         run: >
           meson setup builddir external/thorvg
           -Dbuildtype=release
+          -Db_lto=true
           -Dstatic=true
           -Dengines="sw,gl"
           -Dbindings=capi
