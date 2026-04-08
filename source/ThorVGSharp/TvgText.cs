@@ -61,6 +61,15 @@ public sealed class TvgText : TvgPaint
     }
 
     /// <summary>
+    /// Gets the current text content (UTF-8).
+    /// </summary>
+    /// <returns>The current text, or null if no text is set.</returns>
+    public unsafe string? GetText()
+    {
+        return StringHelper.FromNativeString(NativeMethods.tvg_text_get_text(Handle));
+    }
+
+    /// <summary>
     /// Aligns the text at the specified position.
     /// </summary>
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
