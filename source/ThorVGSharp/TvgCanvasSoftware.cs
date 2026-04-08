@@ -38,16 +38,16 @@ public sealed class TvgCanvasSoftware : TvgCanvas
     {
         ArgumentNullException.ThrowIfNull(buffer);
 
-        ReleasePinnedTargetBuffer();
-        _pinnedTargetBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        _hasPinnedTargetBuffer = true;
+        var newPinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
 
-        var result = NativeMethods.tvg_swcanvas_set_target(Handle, (uint*)_pinnedTargetBuffer.AddrOfPinnedObject(), stride, width, height, (Tvg_Colorspace)colorspace);
+        var result = NativeMethods.tvg_swcanvas_set_target(Handle, (uint*)newPinnedBuffer.AddrOfPinnedObject(), stride, width, height, (Tvg_Colorspace)colorspace);
         if (result != Tvg_Result.TVG_RESULT_SUCCESS)
         {
-            ReleasePinnedTargetBuffer();
+            newPinnedBuffer.Free();
             TvgResultHelper.CheckResult(result, "software canvas set target");
         }
+
+        ReplacePinnedTargetBuffer(newPinnedBuffer);
     }
 
     /// <summary>
@@ -80,8 +80,12 @@ public sealed class TvgCanvasSoftware : TvgCanvas
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void SetTarget(IntPtr buffer, uint stride, uint width, uint height, TvgColorSpace colorspace)
     {
-        ReleasePinnedTargetBuffer();
         var result = NativeMethods.tvg_swcanvas_set_target(Handle, (uint*)buffer, stride, width, height, (Tvg_Colorspace)colorspace);
+        if (result == Tvg_Result.TVG_RESULT_SUCCESS)
+        {
+            ReleasePinnedTargetBuffer();
+        }
+
         TvgResultHelper.CheckResult(result, "software canvas set target");
     }
 
@@ -98,5 +102,12 @@ public sealed class TvgCanvasSoftware : TvgCanvas
             _pinnedTargetBuffer.Free();
             _hasPinnedTargetBuffer = false;
         }
+    }
+
+    private void ReplacePinnedTargetBuffer(GCHandle newPinnedBuffer)
+    {
+        ReleasePinnedTargetBuffer();
+        _pinnedTargetBuffer = newPinnedBuffer;
+        _hasPinnedTargetBuffer = true;
     }
 }
