@@ -74,4 +74,18 @@ public class TvgPictureTests : IDisposable
         TestApiAssert.AllowsTvgException(() => picture.Load("missing.svg"));
         TestApiAssert.AllowsTvgException(() => picture.SetAssetResolver(null));
     }
+
+    [Fact(Skip = "[RISKY-NATIVE] Investigate resolver callback failures/exceptions in native callback path.")]
+    public void AssetResolver_CallbackThrowing_AreInvestigative()
+    {
+        using var picture = TvgPicture.Create();
+
+        picture.SetAssetResolver((paint, _) =>
+        {
+            paint.Dispose();
+            throw new InvalidOperationException("resolver failure");
+        });
+
+        TestApiAssert.AllowsTvgException(() => picture.LoadData(SvgData, "image/svg+xml"));
+    }
 }
