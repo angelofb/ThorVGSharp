@@ -1,5 +1,5 @@
 name: Run Tests
-run-name: Tests - ${{ github.event_name == 'pull_request' && format('PR #{0} - {1}', github.event.pull_request.number, github.head_ref) || format('Manual - {0}', github.ref_name) }}
+run-name: ${{ github.event_name == 'pull_request' && format('Tests - PR {0} - {1}', github.event.pull_request.number, github.head_ref) || format('Tests - Manual - {0}', github.ref_name) }}
 
 on:
   pull_request:
