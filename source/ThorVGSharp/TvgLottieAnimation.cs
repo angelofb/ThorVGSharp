@@ -105,6 +105,31 @@ public sealed class TvgLottieAnimation : IDisposable
     }
 
     /// <summary>
+    /// Gets marker information by index.
+    /// </summary>
+    /// <param name="index">Marker index.</param>
+    /// <returns>
+    /// A marker info object containing marker name, begin frame, and end frame;
+    /// null if the marker cannot be retrieved.
+    /// </returns>
+    public unsafe TvgMarkerInfo? GetMarkerInfo(uint index)
+    {
+        sbyte* markerPtr;
+        float begin;
+        float end;
+
+        var result = NativeMethods.tvg_lottie_animation_get_marker_info(Handle, index, &markerPtr, &begin, &end);
+        if (result != Tvg_Result.TVG_RESULT_SUCCESS || markerPtr == null)
+            return null;
+
+        var name = StringHelper.FromNativeString(markerPtr);
+        if (name == null)
+            return null;
+
+        return new TvgMarkerInfo(name, begin, end);
+    }
+
+    /// <summary>
     /// Tweens between two frames for smooth interpolation.
     /// </summary>
     /// <param name="frameFrom">Starting frame</param>
