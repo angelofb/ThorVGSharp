@@ -122,14 +122,7 @@ public sealed class GenerateBindingsTask : FrostingTask<BuildContext>
 
         if (exitCode != 0)
         {
-            if (context.FileExists(context.BindingsDirectory))
-            {
-                context.Warning($"ClangSharpPInvokeGenerator returned non-zero exit code {exitCode}, but output file was generated.");
-            }
-            else
-            {
-                throw new Exception($"ClangSharpPInvokeGenerator failed with exit code {exitCode}");
-            }
+            throw new Exception($"ClangSharpPInvokeGenerator failed with exit code {exitCode}");
         }
 
         context.Information($"Bindings generated successfully in: {outputPath}");
