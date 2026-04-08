@@ -65,11 +65,32 @@ public sealed class TvgPicture : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void LoadRaw(ReadOnlySpan<uint> data, uint width, uint height, TvgColorSpace colorSpace, bool copy = true)
     {
+        if (!copy)
+            throw new ArgumentException("copy=false is unsafe with ReadOnlySpan input. Use LoadRaw(IntPtr, ...) for unmanaged or pinned buffers.", nameof(copy));
+
         fixed (uint* dataPtr = data)
         {
-            var result = NativeMethods.tvg_picture_load_raw(Handle, dataPtr, width, height, (Tvg_Colorspace)colorSpace, (byte)(copy ? 1 : 0));
-            TvgResultHelper.CheckResult(result, "picture load raw");
+            LoadRaw((IntPtr)dataPtr, width, height, colorSpace, copy: true);
         }
+    }
+
+    /// <summary>
+    /// Loads a raw pixel buffer from an unmanaged or externally pinned pointer.
+    /// </summary>
+    /// <param name="data">Pointer to pixel data buffer</param>
+    /// <param name="width">Image width</param>
+    /// <param name="height">Image height</param>
+    /// <param name="colorSpace">Color space format</param>
+    /// <param name="copy">Whether to copy the data (true) or reference it (false)</param>
+    /// <exception cref="ArgumentException">Thrown when data is null.</exception>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void LoadRaw(IntPtr data, uint width, uint height, TvgColorSpace colorSpace, bool copy = false)
+    {
+        if (data == IntPtr.Zero)
+            throw new ArgumentException("Data pointer cannot be null.", nameof(data));
+
+        var result = NativeMethods.tvg_picture_load_raw(Handle, (uint*)data, width, height, (Tvg_Colorspace)colorSpace, (byte)(copy ? 1 : 0));
+        TvgResultHelper.CheckResult(result, "picture load raw");
     }
 
     /// <summary>
@@ -82,6 +103,30 @@ public sealed class TvgPicture : TvgPaint
     /// <exception cref="TvgException">Thrown when the operation fails.</exception>
     public unsafe void LoadData(ReadOnlySpan<byte> data, string? mimeType = null, string? resourcePath = null, bool copy = true)
     {
+        if (!copy)
+            throw new ArgumentException("copy=false is unsafe with ReadOnlySpan input. Use LoadData(IntPtr, ...) for unmanaged or pinned buffers.", nameof(copy));
+
+        fixed (byte* dataPtr = data)
+        {
+            LoadData((IntPtr)dataPtr, (uint)data.Length, mimeType, resourcePath, copy: true);
+        }
+    }
+
+    /// <summary>
+    /// Loads image data from an unmanaged or externally pinned memory buffer.
+    /// </summary>
+    /// <param name="data">Pointer to image data bytes</param>
+    /// <param name="size">Image data size in bytes</param>
+    /// <param name="mimeType">MIME type of the image (e.g., "image/png", "image/svg+xml")</param>
+    /// <param name="resourcePath">Optional resource path for relative references</param>
+    /// <param name="copy">Whether to copy the data</param>
+    /// <exception cref="ArgumentException">Thrown when data is null and size is non-zero.</exception>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void LoadData(IntPtr data, uint size, string? mimeType = null, string? resourcePath = null, bool copy = false)
+    {
+        if (data == IntPtr.Zero && size > 0)
+            throw new ArgumentException("Data pointer cannot be null when size is greater than zero.", nameof(data));
+
         int mimeMaxBytes = mimeType != null ? StringHelper.GetMaxByteCount(mimeType) : 0;
         int rpathMaxBytes = resourcePath != null ? StringHelper.GetMaxByteCount(resourcePath) : 0;
 
@@ -95,11 +140,10 @@ public sealed class TvgPicture : TvgPaint
         if (mimeType != null) StringHelper.EncodeToUtf8(mimeType, mimeBuffer);
         if (resourcePath != null) StringHelper.EncodeToUtf8(resourcePath, rpathBuffer);
 
-        fixed (byte* dataPtr = data)
         fixed (byte* mimePtr = mimeBuffer)
         fixed (byte* rpathPtr = rpathBuffer)
         {
-            var result = NativeMethods.tvg_picture_load_data(Handle, (sbyte*)dataPtr, (uint)data.Length,
+            var result = NativeMethods.tvg_picture_load_data(Handle, (sbyte*)data, size,
                 (sbyte*)mimePtr, (sbyte*)rpathPtr, (byte)(copy ? 1 : 0));
             TvgResultHelper.CheckResult(result, "picture load data");
         }
