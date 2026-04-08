@@ -28,4 +28,14 @@ public class TvgExceptionTests
         var ex = Assert.Throws(expectedExceptionType, () => TvgResultHelper.CheckResult(result, "test op"));
         Assert.Contains("test op", ex.Message);
     }
+
+    [Fact]
+    public void TvgException_CtorWithInnerException_AssignsInnerException()
+    {
+        var inner = new InvalidOperationException("inner");
+        var ex = new TvgException("outer", inner);
+
+        Assert.Equal("outer", ex.Message);
+        Assert.Same(inner, ex.InnerException);
+    }
 }

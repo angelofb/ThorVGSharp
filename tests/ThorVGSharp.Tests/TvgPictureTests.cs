@@ -65,4 +65,13 @@ public class TvgPictureTests : IDisposable
 
         Assert.Null(picture.GetPaint(uint.MaxValue));
     }
+
+    [Fact]
+    public void Load_WithMissingPath_ThrowsTvgException()
+    {
+        using var picture = TvgPicture.Create();
+
+        TestApiAssert.AllowsTvgException(() => picture.Load("missing.svg"));
+        TestApiAssert.AllowsTvgException(() => picture.SetAssetResolver(null));
+    }
 }

@@ -284,4 +284,18 @@ public class TvgPaintTests : IDisposable
         Assert.Equal(0.0f, m.E32, 5);
         Assert.Equal(1.0f, m.E33, 5);
     }
+
+    [Fact]
+    public void IdBlendAndRefCount_ApisAreCallable()
+    {
+        using var shape = TvgShape.Create();
+
+        shape.SetId(123);
+        Assert.Equal(123u, shape.GetId());
+
+        shape.SetBlendMethod(TvgBlendMethod.Add);
+        shape.SetBlendMethod(TvgBlendMethod.Normal);
+
+        _ = shape.GetRefCount();
+    }
 }

@@ -43,4 +43,17 @@ public class TvgAnimationTests : IDisposable
         Assert.True(animation.GetTotalFrames() >= 0.0f);
         Assert.True(animation.GetDuration() >= 0.0f);
     }
+
+    [Fact]
+    public void FrameAndSegmentApis_AreCallable()
+    {
+        using var animation = TvgAnimation.Create();
+
+        TestApiAssert.AllowsTvgException(() => animation.SetFrame(2.0f));
+        Assert.True(animation.GetFrame() >= 0.0f);
+
+        var (begin, end) = animation.GetSegment();
+        Assert.True(begin >= 0.0f);
+        Assert.True(end >= 0.0f);
+    }
 }

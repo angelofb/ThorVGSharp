@@ -105,4 +105,27 @@ public class TvgCanvasSoftwareTests : IDisposable
         canvas.Draw();
         canvas.Sync();
     }
+
+    [Fact]
+    public void InsertRemoveAndViewportApis_AreCallable()
+    {
+        using var canvas = TvgCanvasSoftware.Create();
+        var buffer = new uint[64 * 64];
+        canvas.SetTarget(buffer, 64, 64, 64, TvgColorSpace.Argb8888);
+
+        using var first = TvgShape.Create();
+        using var second = TvgShape.Create();
+
+        first.AppendRect(2, 2, 20, 20);
+        second.AppendCircle(16, 16, 8);
+
+        canvas.Add(first);
+        TestApiAssert.AllowsTvgException(() => canvas.Insert(second, first));
+        TestApiAssert.AllowsTvgException(() => canvas.Insert(second));
+        TestApiAssert.AllowsTvgException(() => canvas.Remove(second));
+        TestApiAssert.AllowsTvgException(() => canvas.SetViewport(0, 0, 48, 48));
+
+        Assert.Throws<ArgumentNullException>(() => canvas.Remove(null!));
+        Assert.Throws<ArgumentNullException>(() => canvas.Insert(null!, first));
+    }
 }
