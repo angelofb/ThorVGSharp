@@ -89,18 +89,10 @@ public sealed class TvgShape : TvgPaint
         if (commands.IsEmpty)
             throw new ArgumentException("Commands span cannot be empty", nameof(commands));
 
-        // Convert commands to byte array or stackalloc for small sizes
-        Span<byte> cmdBytes = commands.Length <= 256
-            ? stackalloc byte[commands.Length]
-            : new byte[commands.Length];
-
-        for (int i = 0; i < commands.Length; i++)
-            cmdBytes[i] = (byte)commands[i];
-
-        fixed (byte* cmdsPtr = cmdBytes)
+        fixed (TvgPathCommand* cmdsPtr = commands)
         fixed (TvgPoint* pointsPtr = points)
         {
-            var result = NativeMethods.tvg_shape_append_path(Handle, cmdsPtr, (uint)commands.Length, pointsPtr, (uint)points.Length);
+            var result = NativeMethods.tvg_shape_append_path(Handle, (byte*)cmdsPtr, (uint)commands.Length, pointsPtr, (uint)points.Length);
             TvgResultHelper.CheckResult(result, "shape append path");
         }
     }
@@ -404,8 +396,7 @@ public sealed class TvgShape : TvgPaint
             return (null, 0);
 
         float[] pattern = new float[count];
-        for (int i = 0; i < count; i++)
-            pattern[i] = dashPtr[i];
+        new ReadOnlySpan<float>(dashPtr, checked((int)count)).CopyTo(pattern);
 
         return (pattern, offset);
     }
@@ -453,12 +444,10 @@ public sealed class TvgShape : TvgPaint
             return (Array.Empty<TvgPathCommand>(), Array.Empty<TvgPoint>());
 
         var commands = new TvgPathCommand[commandCount];
-        for (int i = 0; i < commandCount; i++)
-            commands[i] = (TvgPathCommand)commandsPtr[i];
+        new ReadOnlySpan<TvgPathCommand>((TvgPathCommand*)commandsPtr, checked((int)commandCount)).CopyTo(commands);
 
         var points = new TvgPoint[pointCount];
-        for (int i = 0; i < pointCount; i++)
-            points[i] = pointsPtr[i];
+        new ReadOnlySpan<TvgPoint>(pointsPtr, checked((int)pointCount)).CopyTo(points);
 
         return (commands, points);
     }

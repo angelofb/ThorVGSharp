@@ -250,10 +250,7 @@ public abstract class TvgPaint : IDisposable
             return [];
 
         var output = new TvgPoint[4];
-        for (int i = 0; i < 4; i++)
-        {
-            output[i] = points[i];
-        }
+        new ReadOnlySpan<TvgPoint>(points, 4).CopyTo(output);
         return output;
     }
 

@@ -77,8 +77,7 @@ public abstract class TvgFill : IDisposable
             return [];
 
         TvgColorStop[] stops = new TvgColorStop[count];
-        for (int i = 0; i < count; i++)
-            stops[i] = stopsPtr[i];
+        new ReadOnlySpan<TvgColorStop>(stopsPtr, checked((int)count)).CopyTo(stops);
 
         return stops;
     }
