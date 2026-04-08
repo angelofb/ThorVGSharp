@@ -21,6 +21,12 @@ public enum TvgTextWrap
     Hyphenation,
 }
 
+public enum TvgFilterMethod
+{
+    Bilinear = 0,
+    Nearest,
+}
+
 public enum TvgStrokeJoin
 {
     Miter = 0,

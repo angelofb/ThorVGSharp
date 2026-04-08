@@ -159,6 +159,16 @@ public sealed class TvgPicture : TvgPaint
     }
 
     /// <summary>
+    /// Sets the sampling filter method used when rendering the picture.
+    /// </summary>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void SetFilter(TvgFilterMethod method)
+    {
+        var result = NativeMethods.tvg_picture_set_filter(Handle, (Tvg_Filter_Method)method);
+        TvgResultHelper.CheckResult(result, "picture set filter");
+    }
+
+    /// <summary>
     /// Sets a callback resolver for external assets in vector images.
     /// This must be called before Load().
     /// </summary>
