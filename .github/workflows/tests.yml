@@ -1,4 +1,5 @@
 name: Run Tests
+run-name: Tests - ${{ github.event_name == 'pull_request' && format('PR #{0} - {1}', github.event.pull_request.number, github.head_ref) || format('Manual - {0}', github.ref_name) }}
 
 on:
   pull_request:
@@ -28,8 +29,8 @@ jobs:
           /p:CollectCoverage=true
           /p:CoverletOutputFormat=cobertura%2copencover%2cjson
           /p:CoverletOutput=./coverage/
-          /p:Threshold=60
-          /p:ThresholdType=line
+          '/p:Threshold="70,60"'
+          '/p:ThresholdType="line,branch"'
           /p:ThresholdStat=total
 
       - name: Upload coverage artifacts
