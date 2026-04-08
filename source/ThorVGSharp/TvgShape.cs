@@ -207,7 +207,7 @@ public sealed class TvgShape : TvgPaint
     {
         _Tvg_Gradient* gradientHandle;
         NativeMethods.tvg_shape_get_gradient(Handle, &gradientHandle);
-        return TvgFill.CreateFromHandle(gradientHandle);
+        return TvgFill.CreateFromHandle(gradientHandle, ownsHandle: false);
     }
 
     #endregion
@@ -281,7 +281,7 @@ public sealed class TvgShape : TvgPaint
     {
         _Tvg_Gradient* gradientHandle;
         NativeMethods.tvg_shape_get_stroke_gradient(Handle, &gradientHandle);
-        return TvgFill.CreateFromHandle(gradientHandle);
+        return TvgFill.CreateFromHandle(gradientHandle, ownsHandle: false);
     }
 
     /// <summary>

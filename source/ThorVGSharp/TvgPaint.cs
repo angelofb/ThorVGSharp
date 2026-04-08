@@ -261,7 +261,7 @@ public abstract class TvgPaint : IDisposable
     public unsafe TvgPaint? GetParent()
     {
         _Tvg_Paint* parent = NativeMethods.tvg_paint_get_parent(Handle);
-        return CreatePaintWrapper(parent);
+        return CreatePaintWrapper(parent, addRef: true);
     }
 
     /// <summary>
@@ -288,7 +288,7 @@ public abstract class TvgPaint : IDisposable
     public unsafe TvgPaint? GetClip()
     {
         _Tvg_Paint* clip = NativeMethods.tvg_paint_get_clip(Handle);
-        return CreatePaintWrapper(clip);
+        return CreatePaintWrapper(clip, addRef: true);
     }
 
     /// <summary>
@@ -333,14 +333,17 @@ public abstract class TvgPaint : IDisposable
     /// <summary>
     /// Creates a wrapper for a paint handle based on its type.
     /// </summary>
-    internal static unsafe TvgPaint? CreatePaintWrapper(_Tvg_Paint* handle)
+    internal static unsafe TvgPaint? CreatePaintWrapper(_Tvg_Paint* handle, bool addRef = false)
     {
         if (handle == null)
             return null;
 
+        if (addRef)
+            NativeMethods.tvg_paint_ref(handle);
+
         Tvg_Type type;
         NativeMethods.tvg_paint_get_type(handle, &type);
-        return type switch
+        TvgPaint? paint = type switch
         {
             Tvg_Type.TVG_TYPE_SHAPE => new TvgShape(handle),
             Tvg_Type.TVG_TYPE_SCENE => new TvgScene(handle),
@@ -348,6 +351,12 @@ public abstract class TvgPaint : IDisposable
             Tvg_Type.TVG_TYPE_TEXT => new TvgText(handle),
             _ => null
         };
+
+        // Undo the retained reference if we couldn't materialize a managed wrapper.
+        if (paint == null && addRef)
+            NativeMethods.tvg_paint_unref(handle, 0);
+
+        return paint;
     }
 
     /// <summary>

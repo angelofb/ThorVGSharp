@@ -11,6 +11,12 @@ public sealed class TvgAccessor : IDisposable
 {
     private bool _disposed;
 
+    private sealed class VisitorContext(PaintVisitor visitor, IntPtr userData)
+    {
+        public PaintVisitor Visitor { get; } = visitor;
+        public IntPtr UserData { get; } = userData;
+    }
+
     /// <summary>
     /// Gets the native handle to the accessor object.
     /// </summary>
@@ -48,22 +54,22 @@ public sealed class TvgAccessor : IDisposable
     public unsafe void Set(TvgPaint paint, PaintVisitor visitor, IntPtr userData = default)
     {
         ArgumentNullException.ThrowIfNull(paint);
+        ArgumentNullException.ThrowIfNull(visitor);
 
         // Create a native callback wrapper
         delegate* unmanaged[Cdecl]<_Tvg_Paint*, void*, byte> nativeCallback = &NativeVisitorCallback;
 
-        // Store the managed callback in a GCHandle to prevent collection
-        var callbackHandle = GCHandle.Alloc(visitor);
+        // tvg_accessor_set performs traversal synchronously, so this context only needs to stay alive for this call.
+        var callbackHandle = GCHandle.Alloc(new VisitorContext(visitor, userData));
 
         try
         {
             var result = NativeMethods.tvg_accessor_set(Handle, paint.Handle, nativeCallback, GCHandle.ToIntPtr(callbackHandle).ToPointer());
             TvgResultHelper.CheckResult(result, "accessor set");
         }
-        catch
+        finally
         {
             callbackHandle.Free();
-            throw;
         }
     }
 
@@ -73,13 +79,14 @@ public sealed class TvgAccessor : IDisposable
         try
         {
             var callbackHandle = GCHandle.FromIntPtr(new IntPtr(userData));
-            var visitor = (PaintVisitor)callbackHandle.Target!;
+            if (callbackHandle.Target is not VisitorContext context)
+                return 0;
 
-            var managedPaint = TvgPaint.CreatePaintWrapper(paint);
+            var managedPaint = TvgPaint.CreatePaintWrapper(paint, addRef: true);
             if (managedPaint == null)
                 return 0;
 
-            return (byte)(visitor(managedPaint, IntPtr.Zero) ? 1 : 0);
+            return (byte)(context.Visitor(managedPaint, context.UserData) ? 1 : 0);
         }
         catch
         {

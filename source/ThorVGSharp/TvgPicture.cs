@@ -155,7 +155,7 @@ public sealed class TvgPicture : TvgPaint
         if (paintHandle == null)
             return null;
 
-        return CreatePaintWrapper(paintHandle);
+        return CreatePaintWrapper(paintHandle, addRef: true);
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ public sealed class TvgPicture : TvgPaint
         {
             try
             {
-                var paint = CreatePaintWrapper(paintPtr);
+                var paint = CreatePaintWrapper(paintPtr, addRef: true);
                 if (paint == null)
                     return 0;
 

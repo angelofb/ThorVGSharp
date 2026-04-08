@@ -210,7 +210,7 @@ public sealed class TvgLottieAnimation : IDisposable
         if (paintHandle == null)
             return null;
 
-        return new TvgPicture(paintHandle);
+        return TvgPaint.CreatePaintWrapper(paintHandle, addRef: true) as TvgPicture;
     }
 
     /// <summary>
