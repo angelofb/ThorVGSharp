@@ -65,6 +65,26 @@ public abstract class TvgPaint : IDisposable
     }
 
     /// <summary>
+    /// Sets the paint identifier.
+    /// </summary>
+    /// <param name="id">The identifier value to assign.</param>
+    /// <exception cref="TvgException">Thrown when the operation fails.</exception>
+    public unsafe void SetId(uint id)
+    {
+        var result = NativeMethods.tvg_paint_set_id(Handle, id);
+        TvgResultHelper.CheckResult(result, "set paint id");
+    }
+
+    /// <summary>
+    /// Gets the paint identifier.
+    /// </summary>
+    /// <returns>The identifier value associated with this paint.</returns>
+    public unsafe uint GetId()
+    {
+        return NativeMethods.tvg_paint_get_id(Handle);
+    }
+
+    /// <summary>
     /// Sets the opacity of the paint.
     /// </summary>
     /// <param name="opacity">The opacity value in the range [0 ~ 255], where 0 is completely transparent and 255 is opaque.</param>
